@@ -18,7 +18,9 @@ namespace Tourmaline.Viewer3D.Processes
     public class Game: Microsoft.Xna.Framework.Game
     {
         /// Ajustes de usuario
-        //public UserSettings Settings { get; private set; }
+        private string mvarContentPath = "C:\\Tourmaline";
+        private string mvarContentPath2 = "A:\\Tourmaline\\Tourmaline";
+
         public float PerformanceTunerTarget = 60; //Objetivo 60FPS
         public bool PerformanceTuner = true; //Forzamos recálculo dinámico de FPS.
         public bool VerticalSync = false; //Sincronía vertical.
@@ -51,10 +53,7 @@ namespace Tourmaline.Viewer3D.Processes
         //public Game(UserSettings settings)
         public Game()
         {
-            //Settings = settings;
-            //ContentPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath), "Content");
-            ContentPath = "C:\\Tourmaline";
-            ResourcesPath = Path.Combine(ContentPath, "Resources");
+            locateContentPath();            
             Exiting += new System.EventHandler<System.EventArgs>(Game_Exiting);
             WatchdogProcess = new WatchdogProcess(this);
             RenderProcess = new RenderProcess(this);
@@ -62,6 +61,16 @@ namespace Tourmaline.Viewer3D.Processes
             LoaderProcess = new LoaderProcess(this);
             //WebServerProcess = new WebServerProcess(this);
             States = new Stack<GameState>();
+        }
+
+        private void locateContentPath()
+        {
+            if (System.IO.Directory.Exists(mvarContentPath))
+                ContentPath = mvarContentPath;
+            else
+                ContentPath = mvarContentPath2;
+
+            ResourcesPath = Path.Combine(ContentPath, "Resources");
         }
 
         [ThreadName("Render")]

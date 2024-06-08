@@ -52,7 +52,7 @@ namespace Tourmaline.Viewer3D
 
         public override void Redo()
         {
-            Receiver.FrontCamera.Activate();
+            //Receiver.FrontCamera.Activate();
             // Report();
         }
     }
@@ -69,7 +69,7 @@ namespace Tourmaline.Viewer3D
 
         public override void Redo()
         {
-            Receiver.BackCamera.Activate();
+            //Receiver.BackCamera.Activate();
             // Report();
         }
     }

@@ -571,7 +571,7 @@ namespace Tourmaline.Viewer3D.Processes
             //    // for resume and replay : set timetable file and selected train info                
             //    MicroSim.ResourcesPath = String.Copy(args[0]);
             //}
-            MicroSim.SetExplore("Velaro Single");
+            MicroSim.SetExplore("Velaro4");
         }
 
         private bool HasExtension(string path, string ext) => Path.GetExtension(path).Equals(ext, StringComparison.OrdinalIgnoreCase);

@@ -139,6 +139,7 @@ namespace Tourmaline.Viewer3D
         /// <param name="elapsedTime"></param>
         public virtual void HandleUserInput(long elapsedTime)
         {
+
         }
 
         /// <summary>
@@ -532,6 +533,18 @@ namespace Tourmaline.Viewer3D
             cameraLocation.Normalize();
         }
 
+        public override void HandleUserInput(long elapsedTime)
+        {
+            base.HandleUserInput(elapsedTime);
+            // Rotate camera
+            var speed = GetSpeed(elapsedTime);
+            if (UserInput.IsDown(UserCommand.CameraRotateUp)) RotateDown(-speed);
+            if (UserInput.IsDown(UserCommand.CameraRotateDown)) RotateDown(speed);
+            if (UserInput.IsDown(UserCommand.CameraRotateLeft)) RotateRight(-speed);
+            if (UserInput.IsDown(UserCommand.CameraRotateRight)) RotateRight(speed);
+
+        }
+
         /// <summary>
         /// A margin of half a step (increment/2) is used to prevent hunting once the target is reached.
         /// </summary>
@@ -553,6 +566,432 @@ namespace Tourmaline.Viewer3D
                 return error / increment < 0.5;
             }
         }
+    }
+
+
+    public class SFMCamera : RotatingCamera
+    {
+        protected TrainCar mvarAttachedCar;
+        public SFMCamera(Viewer visor):base(visor) {}
+        public override TrainCar AttachedCar => mvarAttachedCar;
+        protected Vector3 mvarAttachedLocation;
+        protected float CameraAltitudeOffset;
+        protected float CameraXOffset;
+        protected float CameraZoomOffset;
+        protected override void OnActivate(bool sameCamera)
+        {
+            if(null==mvarAttachedCar)
+            {
+                mvarAttachedCar = Viewer.microSim.PlayerTrain.FirstCar;
+            }
+        }
+        public void UpdateLocation(WorldPosition position)
+        {          
+            cameraLocation = mvarAttachedLocation;
+            cameraLocation.Z *= -1;
+            cameraLocation = Vector3.Transform(cameraLocation, position.XNAMatrix);
+            cameraLocation.Z *= -1;
+        }
+        protected override Matrix GetCameraView()
+        {
+            Vector3 lookAtPosition = Vector3.UnitZ;
+            lookAtPosition = Vector3.Transform(lookAtPosition, Matrix.CreateRotationX(RotationXRadians));
+            lookAtPosition = Vector3.Transform(lookAtPosition,Matrix.CreateRotationY(RotationYRadians));
+            lookAtPosition.X += mvarAttachedLocation.X;
+            lookAtPosition.Y += mvarAttachedLocation.Y;
+            lookAtPosition.Z += mvarAttachedLocation.Z;
+            lookAtPosition.Z *= -1;
+            Matrix upRotation = mvarAttachedCar.position.XNAMatrix;
+            upRotation.Translation = Vector3.Zero;
+            Vector3 up = Vector3.Transform(Vector3.Up, upRotation);
+            return Matrix.CreateLookAt(XnaLocation(cameraLocation), lookAtPosition, up);
+        }
+        public override void Update(long elapsedTime)
+        {
+            if(null!=mvarAttachedCar)
+            {
+                cameraLocation.X = mvarAttachedLocation.X;
+                cameraLocation.Y = mvarAttachedLocation.Y;
+                cameraLocation.Z = mvarAttachedLocation.Z;
+                cameraLocation.Z *= -1;
+                cameraLocation = Vector3.Transform(cameraLocation, mvarAttachedCar.position.XNAMatrix);
+                cameraLocation.Z *= -1;
+            }
+            UpdateRotation(elapsedTime);
+        }
+        public override void HandleUserInput(long elapsedTime)
+        {
+            RotationYRadians = -TOURMALINEMath.MatrixToYAngle(xnaView);
+            float speed = GetSpeed(elapsedTime);
+            if(UserInput.IsDown(UserCommand.CameraPanUp))
+            {
+                CameraAltitudeOffset += speed;
+                mvarAttachedLocation.Y += speed;
+            }
+            if(UserInput.IsDown(UserCommand.CameraPanDown))
+            {
+                CameraAltitudeOffset -= speed;
+                mvarAttachedLocation.Y -= speed;
+                if(mvarAttachedLocation.Y < 0)
+                        {
+                    cameraLocation.Y -= CameraAltitudeOffset;
+                    CameraAltitudeOffset = 0;
+                }
+            }
+            if (UserInput.IsDown(UserCommand.CameraPanRight)) PanRight(speed);
+            if (UserInput.IsDown(UserCommand.CameraPanLeft)) PanRight(-speed);
+            if (UserInput.IsDown(UserCommand.CameraZoomIn)) ZoomIn(speed * 2);
+            if (UserInput.IsDown(UserCommand.CameraZoomOut)) ZoomIn(-speed * 2);
+            // Rotate camera
+            if (UserInput.IsDown(UserCommand.CameraRotateUp)) RotateDown(-speed);
+            if (UserInput.IsDown(UserCommand.CameraRotateDown)) RotateDown(speed);
+            if (UserInput.IsDown(UserCommand.CameraRotateLeft)) RotateRight(-speed);
+            if (UserInput.IsDown(UserCommand.CameraRotateRight)) RotateRight(speed);
+        }
+        protected virtual void PanRight(float speed)
+        {
+
+            CameraXOffset += speed;
+            mvarAttachedLocation.X += speed;
+        }
+        protected override void ZoomIn(float speed)
+        {
+            CameraZoomOffset += speed;
+            mvarAttachedLocation.Z += speed;
+        }
+
+
+    }
+
+    public class TracksideCamera : LookAtCamera
+    {
+        protected const int MaximumDistance = 100;
+        protected const float SidewaysScale = MaximumDistance / 10;
+        // Heights above the terrain for the camera.
+        protected const float CameraAltitude = 2;
+        // Height above the coordinate center of target.
+        protected const float TargetAltitude = TerrainAltitudeMargin;
+
+        protected TrainCar attachedCar;
+        public override TrainCar AttachedCar { get { return attachedCar; } }
+        public override string Name { get => "Trackside"; }
+
+        protected TrainCar LastCheckCar;
+        protected Vector3 TrackCameraLocation;
+        protected float CameraAltitudeOffset;
+
+        public override bool IsUnderground
+        {
+            get
+            {
+                // Camera is underground if target (base) is underground or
+                // track location is underground. The latter means we switch
+                // to cab view instead of putting the camera above the tunnel.
+                if (base.IsUnderground)
+                    return true;
+                //if (TrackCameraLocation == WorldLocation.None) return false;
+                //var elevationAtCameraTarget = Viewer.Tiles.GetElevation(TrackCameraLocation);
+                //return TrackCameraLocation.Location.Y + TerrainAltitudeMargin < elevationAtCameraTarget;
+                return false;
+            }
+        }
+
+
+        public override void HandleUserInput(long elapsedTime)
+        {
+            RotationYRadians = -TOURMALINEMath.MatrixToYAngle(XnaView);
+            var speed = GetSpeed(elapsedTime);
+
+            if (UserInput.IsDown(UserCommand.CameraPanUp))
+            {
+                CameraAltitudeOffset += speed;
+                cameraLocation.Y += speed;
+            }
+            if (UserInput.IsDown(UserCommand.CameraPanDown))
+            {
+                CameraAltitudeOffset -= speed;
+                cameraLocation.Y -= speed;
+                if (CameraAltitudeOffset < 0)
+                {
+                    cameraLocation.Y -= CameraAltitudeOffset;
+                    CameraAltitudeOffset = 0;
+                }
+            }
+            if (UserInput.IsDown(UserCommand.CameraPanRight)) PanRight(speed);
+            if (UserInput.IsDown(UserCommand.CameraPanLeft)) PanRight(-speed);
+            if (UserInput.IsDown(UserCommand.CameraZoomIn)) ZoomIn(speed * 2);
+            if (UserInput.IsDown(UserCommand.CameraZoomOut)) ZoomIn(-speed * 2);
+
+            ZoomByMouseWheel(speed);
+
+            //var trainCars = Viewer.SelectedTrain.Cars;
+            //if (UserInput.IsPressed(UserCommand.CameraCarNext))
+            //    attachedCar = attachedCar == trainCars.First() ? attachedCar : trainCars[trainCars.IndexOf(attachedCar) - 1];
+            //else if (UserInput.IsPressed(UserCommand.CameraCarPrevious))
+            //    attachedCar = attachedCar == trainCars.Last() ? attachedCar : trainCars[trainCars.IndexOf(attachedCar) + 1];
+            //else if (UserInput.IsPressed(UserCommand.CameraCarFirst))
+            //    attachedCar = trainCars.First();
+            //else if (UserInput.IsPressed(UserCommand.CameraCarLast))
+            //    attachedCar = trainCars.Last();
+        }
+
+        public TracksideCamera(Viewer viewer)
+            : base(viewer)
+        {
+        }
+        public TracksideCamera(Viewer viewer, TrainCar attachedCar)
+            : base(viewer)
+        {
+            this.attachedCar = attachedCar;
+        }
+
+        public override void Reset()
+        {
+            base.Reset();
+            cameraLocation.Y -= CameraAltitudeOffset;
+            CameraAltitudeOffset = 0;
+        }
+
+        protected override void OnActivate(bool sameCamera)
+        {
+            if (sameCamera)
+            {
+                //cameraLocation.TileX = 0;
+                //cameraLocation.TileZ = 0;
+            }
+            //if (attachedCar == null || attachedCar.Train != Viewer.SelectedTrain)            
+            //    {
+            //    if (Viewer.SelectedTrain.MUDirection != Direction.Reverse)
+            //        attachedCar = Viewer.SelectedTrain.Cars.First();
+            //    else
+            //        attachedCar = Viewer.SelectedTrain.Cars.Last();
+            //}            
+            base.OnActivate(sameCamera);
+        }
+
+
+
+        public override void Update(long elapsedTime)
+        {
+            bool trainForwards;
+            //var train = PrepUpdate(out trainForwards);
+
+            // Train is close enough if the last car we used is part of the same train and still close enough.
+            //var trainClose = (LastCheckCar != null) && (LastCheckCar.Train == train) && (WorldLocation.GetDistance2D(LastCheckCar.WorldPosition.WorldLocation, cameraLocation).Length() < MaximumDistance);
+
+            // Otherwise, let's check out every car and remember which is the first one close enough for next time.
+            //if (!trainClose)
+            //{
+            //foreach (var car in train.Cars)
+            //{
+            //    if (WorldLocation.GetDistance2D(car.WorldPosition.WorldLocation, cameraLocation).Length() < MaximumDistance)
+            //    {
+            //        LastCheckCar = car;
+            //        trainClose = true;
+            //        break;
+            //    }
+            //}
+            //}
+
+            // Switch to new position.
+            //if (!trainClose || (TrackCameraLocation == WorldLocation.None))
+            if (TrackCameraLocation == Vector3.One)
+            {
+                //var tdb = trainForwards ? new Traveller(train.FrontTDBTraveller) : new Traveller(train.RearTDBTraveller, Traveller.TravellerDirection.Backward);
+                //var newLocation = GoToNewLocation(ref tdb, train, trainForwards);
+                //newLocation.Normalize();
+
+                //var newLocationElevation = Viewer.Tiles.GetElevation(newLocation);
+                //cameraLocation = newLocation;
+                //cameraLocation.Location.Y = Math.Max(tdb.Y, newLocationElevation) + CameraAltitude + CameraAltitudeOffset;
+            }
+
+            targetLocation.Y += TargetAltitude;
+            //UpdateListener();
+        }
+
+        //protected Train PrepUpdate(out bool trainForwards)
+        //{
+        //    var train = attachedCar.Train;
+
+        //    // TODO: What is this code trying to do?
+        //    //if (train != Viewer.PlayerTrain && train.LeadLocomotive == null) train.ChangeToNextCab();
+        //    trainForwards = true;
+        //    if (train.LeadLocomotive != null)
+        //        //TODO: next code line has been modified to flip trainset physics in order to get viewing direction coincident with loco direction when using rear cab.
+        //        // To achieve the same result with other means, without flipping trainset physics, maybe the line should be changed
+        //        trainForwards = (train.LeadLocomotive.SpeedMpS >= 0) ^ train.LeadLocomotive.Flipped ^ ((MSTSLocomotive)train.LeadLocomotive).UsingRearCab;
+        //    else if (Viewer.PlayerLocomotive != null && train.IsActualPlayerTrain)
+        //        trainForwards = (Viewer.PlayerLocomotive.SpeedMpS >= 0) ^ Viewer.PlayerLocomotive.Flipped ^ ((MSTSLocomotive)Viewer.PlayerLocomotive).UsingRearCab;
+
+        //    targetLocation = attachedCar.WorldPosition.WorldLocation;
+
+        //    return train;
+        //}
+
+
+        //protected WorldLocation GoToNewLocation(ref Traveller tdb, Train train, bool trainForwards)
+        //{
+        //    tdb.Move(MaximumDistance * 0.75f);
+        //    var newLocation = tdb.WorldLocation;
+        //    TrackCameraLocation = new WorldLocation(newLocation);
+        //    var directionForward = WorldLocation.GetDistance((trainForwards ? train.FirstCar : train.LastCar).WorldPosition.WorldLocation, newLocation);
+        //    if (Viewer.Random.Next(2) == 0)
+        //    {
+        //        newLocation.Location.X += -directionForward.Z / SidewaysScale; // Use swapped -X and Z to move to the left of the track.
+        //        newLocation.Location.Z += directionForward.X / SidewaysScale;
+        //    }
+        //    else
+        //    {
+        //        newLocation.Location.X += directionForward.Z / SidewaysScale; // Use swapped X and -Z to move to the right of the track.
+        //        newLocation.Location.Z += -directionForward.X / SidewaysScale;
+        //    }
+        //    return newLocation;
+        //}
+
+        protected virtual void PanRight(float speed)
+        {
+            var movement = new Vector3(0, 0, 0);
+            movement.X += speed;
+            XRadians += movement.X;
+            MoveCamera(movement);
+        }
+
+        protected override void ZoomIn(float speed)
+        {
+            var movement = new Vector3(0, 0, 0);
+            movement.Z += speed;
+            ZRadians += movement.Z;
+            MoveCamera(movement);
+        }
+
+    }
+
+
+
+    public abstract class AttachedCamera : RotatingCamera
+    {
+        protected TrainCar mvarAttachedCar;
+        public override TrainCar AttachedCar => mvarAttachedCar;
+        public bool tiltingLand;
+        protected Vector3 mvarAttachedLocation;
+        protected WorldPosition LookedAtPosition = new WorldPosition();
+
+        protected AttachedCamera(Viewer viewer) : base(viewer) { }
+        protected override void OnActivate(bool sameCamera)
+        {
+            if (null == AttachedCar)
+            {
+                SetCameraCar(Viewer.microSim.PlayerTrain.FirstCar);
+            }
+        }
+        protected void SetCameraCar(TrainCar rhs) { mvarAttachedCar = rhs; }
+        protected virtual bool IsCameraFlipped() { return false; }
+        public void UpdateLocation(WorldPosition position)
+        {
+            if (null != position)
+            {
+                //cameraLocation.TileX = position.TileX;
+                //cameraLocation.TileZ = position.TileZ;
+                cameraLocation.Y = mvarAttachedLocation.Y;
+                if (IsCameraFlipped())
+                {
+                    cameraLocation.X = -mvarAttachedLocation.X;
+                    cameraLocation.Z = -mvarAttachedLocation.Z;
+                }
+                else
+                {
+                    cameraLocation.X = mvarAttachedLocation.X;
+                    cameraLocation.Z = mvarAttachedLocation.Z;
+                }
+                cameraLocation.Z *= -1;
+                cameraLocation = Vector3.Transform(cameraLocation, position.XNAMatrix);
+                cameraLocation.Z *= -1;
+            }
+        }
+        protected override Matrix GetCameraView()
+        {
+            bool flipped = IsCameraFlipped();
+            Vector3 lookAtPosition = Vector3.UnitZ;
+            lookAtPosition = Vector3.Transform(lookAtPosition, Matrix.CreateRotationX(RotationXRadians));
+            lookAtPosition = Vector3.Transform(lookAtPosition, Matrix.CreateRotationY(RotationYRadians + (flipped ? MathHelper.Pi : 0)));
+            if (flipped)
+            {
+                lookAtPosition.X -= mvarAttachedLocation.X;
+                lookAtPosition.Y += mvarAttachedLocation.Y;
+                lookAtPosition.Z -= mvarAttachedLocation.Z;
+            }
+            else
+            {
+                lookAtPosition.X += mvarAttachedLocation.X;
+                lookAtPosition.Y += mvarAttachedLocation.Y;
+                lookAtPosition.Z += mvarAttachedLocation.Z;
+            }
+            lookAtPosition.Z *= -1;
+            lookAtPosition = Vector3.Transform(lookAtPosition, Viewer.Camera is TrackingCamera ? LookedAtPosition.XNAMatrix : mvarAttachedCar.position.XNAMatrix);
+            //Rotamos el vector vertical para que la cámara ruede con nosotros
+            Vector3 up;
+            if (Viewer.Camera is TrackingCamera)
+            {
+                up = Vector3.Up;
+            }
+            else
+            {
+                Matrix upRotation = mvarAttachedCar.position.XNAMatrix;
+                upRotation.Translation = Vector3.Zero;
+                up = Vector3.Transform(Vector3.Up, upRotation);
+            }
+            return Matrix.CreateLookAt(XnaLocation(cameraLocation), lookAtPosition, up);
+        }
+        public override void Update(long elapsedTime)
+        {
+            if (null != mvarAttachedCar)
+            {
+                //cameraLocation.TileX = mvarAttachedCar.position.TileX;
+                //cameraLocation.TileZ = mvarAttachedCar.position.TileZ;
+                cameraLocation.Y = mvarAttachedLocation.Y;
+                if (IsCameraFlipped())
+                {
+                    cameraLocation.X = -mvarAttachedLocation.X;
+                    cameraLocation.Z = -mvarAttachedLocation.Z;
+                }
+                else
+                {
+                    cameraLocation.X = mvarAttachedLocation.X;
+                    cameraLocation.Z = mvarAttachedLocation.Z;
+                }
+                cameraLocation.Z *= -1;
+                cameraLocation = Vector3.Transform(cameraLocation, mvarAttachedCar.position.XNAMatrix);
+                cameraLocation.Z *= -1;
+            }
+            UpdateRotation(elapsedTime);
+        }
+
+        protected virtual List<TrainCar> GetCameraCars()
+        {
+            return Viewer.microSim.PlayerTrain.Cars;
+        }
+        public virtual void NextCar()
+        {
+            List<TrainCar> coches = GetCameraCars();
+            SetCameraCar(mvarAttachedCar == coches.First() ? mvarAttachedCar : coches[coches.IndexOf(mvarAttachedCar) - 1]);
+        }
+        public virtual void PreviousCar()
+        {
+            List<TrainCar> coches = GetCameraCars();
+            SetCameraCar(mvarAttachedCar == coches.Last() ? mvarAttachedCar : coches[coches.IndexOf(mvarAttachedCar) + 1]);
+        }
+        public virtual void FirstCar()
+        {
+            List<TrainCar> coches = GetCameraCars();
+            SetCameraCar(coches.First());
+        }
+        public virtual void LastCar()
+        {
+            List<TrainCar> coches = GetCameraCars();
+            SetCameraCar(coches.Last());
+        }
+
     }
 
     public class FreeRoamCamera : RotatingCamera
@@ -733,201 +1172,6 @@ namespace Tourmaline.Viewer3D
         }
     }
 
-    public class TracksideCamera : LookAtCamera
-    {
-        protected const int MaximumDistance = 100;
-        protected const float SidewaysScale = MaximumDistance / 10;
-        // Heights above the terrain for the camera.
-        protected const float CameraAltitude = 2;
-        // Height above the coordinate center of target.
-        protected const float TargetAltitude = TerrainAltitudeMargin;
-
-        protected TrainCar attachedCar;
-        public override TrainCar AttachedCar { get { return attachedCar; } }
-        public override string Name { get => "Trackside"; }
-
-        protected TrainCar LastCheckCar;
-        protected Vector3 TrackCameraLocation;
-        protected float CameraAltitudeOffset;
-
-        public override bool IsUnderground
-        {
-            get
-            {
-                // Camera is underground if target (base) is underground or
-                // track location is underground. The latter means we switch
-                // to cab view instead of putting the camera above the tunnel.
-                if (base.IsUnderground)
-                    return true;
-                //if (TrackCameraLocation == WorldLocation.None) return false;
-                //var elevationAtCameraTarget = Viewer.Tiles.GetElevation(TrackCameraLocation);
-                //return TrackCameraLocation.Location.Y + TerrainAltitudeMargin < elevationAtCameraTarget;
-                return false;
-            }
-        }
-
-        public TracksideCamera(Viewer viewer)
-            : base(viewer)
-        {
-        }
-
-        public override void Reset()
-        {
-            base.Reset();
-            cameraLocation.Y -= CameraAltitudeOffset;
-            CameraAltitudeOffset = 0;
-        }
-
-        protected override void OnActivate(bool sameCamera)
-        {
-            if (sameCamera)
-            {
-                //cameraLocation.TileX = 0;
-                //cameraLocation.TileZ = 0;
-            }
-            //if (attachedCar == null || attachedCar.Train != Viewer.SelectedTrain)            
-            //    {
-            //    if (Viewer.SelectedTrain.MUDirection != Direction.Reverse)
-            //        attachedCar = Viewer.SelectedTrain.Cars.First();
-            //    else
-            //        attachedCar = Viewer.SelectedTrain.Cars.Last();
-            //}
-            base.OnActivate(sameCamera);
-        }
-
-        public override void HandleUserInput(long elapsedTime)
-        {
-            RotationYRadians = -TOURMALINEMath.MatrixToYAngle(XnaView);
-            var speed = GetSpeed(elapsedTime);
-
-            if (UserInput.IsDown(UserCommand.CameraPanUp))
-            {
-                CameraAltitudeOffset += speed;
-                cameraLocation.Y += speed;
-            }
-            if (UserInput.IsDown(UserCommand.CameraPanDown))
-            {
-                CameraAltitudeOffset -= speed;
-                cameraLocation.Y -= speed;
-                if (CameraAltitudeOffset < 0)
-                {
-                    cameraLocation.Y -= CameraAltitudeOffset;
-                    CameraAltitudeOffset = 0;
-                }
-            }
-            if (UserInput.IsDown(UserCommand.CameraPanRight)) PanRight(speed);
-            if (UserInput.IsDown(UserCommand.CameraPanLeft)) PanRight(-speed);
-            if (UserInput.IsDown(UserCommand.CameraZoomIn)) ZoomIn(speed * 2);
-            if (UserInput.IsDown(UserCommand.CameraZoomOut)) ZoomIn(-speed * 2);
-
-            ZoomByMouseWheel(speed);
-
-            //var trainCars = Viewer.SelectedTrain.Cars;
-            //if (UserInput.IsPressed(UserCommand.CameraCarNext))
-            //    attachedCar = attachedCar == trainCars.First() ? attachedCar : trainCars[trainCars.IndexOf(attachedCar) - 1];
-            //else if (UserInput.IsPressed(UserCommand.CameraCarPrevious))
-            //    attachedCar = attachedCar == trainCars.Last() ? attachedCar : trainCars[trainCars.IndexOf(attachedCar) + 1];
-            //else if (UserInput.IsPressed(UserCommand.CameraCarFirst))
-            //    attachedCar = trainCars.First();
-            //else if (UserInput.IsPressed(UserCommand.CameraCarLast))
-            //    attachedCar = trainCars.Last();
-        }
-
-        public override void Update(long elapsedTime)
-        {
-            bool trainForwards;
-            //var train = PrepUpdate(out trainForwards);
-
-            // Train is close enough if the last car we used is part of the same train and still close enough.
-            //var trainClose = (LastCheckCar != null) && (LastCheckCar.Train == train) && (WorldLocation.GetDistance2D(LastCheckCar.WorldPosition.WorldLocation, cameraLocation).Length() < MaximumDistance);
-
-            // Otherwise, let's check out every car and remember which is the first one close enough for next time.
-            //if (!trainClose)
-            //{
-                //foreach (var car in train.Cars)
-                //{
-                //    if (WorldLocation.GetDistance2D(car.WorldPosition.WorldLocation, cameraLocation).Length() < MaximumDistance)
-                //    {
-                //        LastCheckCar = car;
-                //        trainClose = true;
-                //        break;
-                //    }
-                //}
-            //}
-
-            // Switch to new position.
-            //if (!trainClose || (TrackCameraLocation == WorldLocation.None))
-            if (TrackCameraLocation == Vector3.One)
-            {
-                //var tdb = trainForwards ? new Traveller(train.FrontTDBTraveller) : new Traveller(train.RearTDBTraveller, Traveller.TravellerDirection.Backward);
-                //var newLocation = GoToNewLocation(ref tdb, train, trainForwards);
-                //newLocation.Normalize();
-
-                //var newLocationElevation = Viewer.Tiles.GetElevation(newLocation);
-                //cameraLocation = newLocation;
-                //cameraLocation.Location.Y = Math.Max(tdb.Y, newLocationElevation) + CameraAltitude + CameraAltitudeOffset;
-            }
-
-            targetLocation.Y += TargetAltitude;
-            //UpdateListener();
-        }
-
-        //protected Train PrepUpdate(out bool trainForwards)
-        //{
-        //    var train = attachedCar.Train;
-
-        //    // TODO: What is this code trying to do?
-        //    //if (train != Viewer.PlayerTrain && train.LeadLocomotive == null) train.ChangeToNextCab();
-        //    trainForwards = true;
-        //    if (train.LeadLocomotive != null)
-        //        //TODO: next code line has been modified to flip trainset physics in order to get viewing direction coincident with loco direction when using rear cab.
-        //        // To achieve the same result with other means, without flipping trainset physics, maybe the line should be changed
-        //        trainForwards = (train.LeadLocomotive.SpeedMpS >= 0) ^ train.LeadLocomotive.Flipped ^ ((MSTSLocomotive)train.LeadLocomotive).UsingRearCab;
-        //    else if (Viewer.PlayerLocomotive != null && train.IsActualPlayerTrain)
-        //        trainForwards = (Viewer.PlayerLocomotive.SpeedMpS >= 0) ^ Viewer.PlayerLocomotive.Flipped ^ ((MSTSLocomotive)Viewer.PlayerLocomotive).UsingRearCab;
-
-        //    targetLocation = attachedCar.WorldPosition.WorldLocation;
-
-        //    return train;
-        //}
-
-
-        //protected WorldLocation GoToNewLocation(ref Traveller tdb, Train train, bool trainForwards)
-        //{
-        //    tdb.Move(MaximumDistance * 0.75f);
-        //    var newLocation = tdb.WorldLocation;
-        //    TrackCameraLocation = new WorldLocation(newLocation);
-        //    var directionForward = WorldLocation.GetDistance((trainForwards ? train.FirstCar : train.LastCar).WorldPosition.WorldLocation, newLocation);
-        //    if (Viewer.Random.Next(2) == 0)
-        //    {
-        //        newLocation.Location.X += -directionForward.Z / SidewaysScale; // Use swapped -X and Z to move to the left of the track.
-        //        newLocation.Location.Z += directionForward.X / SidewaysScale;
-        //    }
-        //    else
-        //    {
-        //        newLocation.Location.X += directionForward.Z / SidewaysScale; // Use swapped X and -Z to move to the right of the track.
-        //        newLocation.Location.Z += -directionForward.X / SidewaysScale;
-        //    }
-        //    return newLocation;
-        //}
-
-        protected virtual void PanRight(float speed)
-        {
-            var movement = new Vector3(0, 0, 0);
-            movement.X += speed;
-            XRadians += movement.X;
-            MoveCamera(movement);
-        }
-
-        protected override void ZoomIn(float speed)
-        {
-            var movement = new Vector3(0, 0, 0);
-            movement.Z += speed;
-            ZRadians += movement.Z;
-            MoveCamera(movement);
-        }
-
-    }
 
     public class SpecialTracksideCamera : TracksideCamera
     {
@@ -1246,130 +1490,7 @@ namespace Tourmaline.Viewer3D
     }
 
 
-    public abstract class AttachedCamera:RotatingCamera
-    {
-        protected TrainCar mvarAttachedCar;
-        public override TrainCar AttachedCar => mvarAttachedCar;
-        public bool tiltingLand;
-        protected Vector3 mvarAttachedLocation;
-        protected WorldPosition LookedAtPosition = new WorldPosition();
 
-        protected AttachedCamera(Viewer viewer) : base(viewer) { }
-        protected override void OnActivate(bool sameCamera)
-        {
-            if(null==AttachedCar)
-            {
-                SetCameraCar(Viewer.microSim.PlayerTrain.FirstCar);
-            }
-        }
-        protected void SetCameraCar(TrainCar rhs) {mvarAttachedCar = rhs;}
-        protected virtual bool IsCameraFlipped() { return false; }
-        public void UpdateLocation(WorldPosition position)
-        {
-            if(null!=position)
-            {
-                //cameraLocation.TileX = position.TileX;
-                //cameraLocation.TileZ = position.TileZ;
-                cameraLocation.Y = mvarAttachedLocation.Y;
-                if (IsCameraFlipped())
-                {
-                    cameraLocation.X = -mvarAttachedLocation.X;
-                    cameraLocation.Z= -mvarAttachedLocation.Z;                                        
-                }
-                else
-                {
-                    cameraLocation.X = mvarAttachedLocation.X;
-                    cameraLocation.Z = mvarAttachedLocation.Z;
-                }
-                cameraLocation.Z *= -1;
-                cameraLocation = Vector3.Transform(cameraLocation, position.XNAMatrix);
-                cameraLocation.Z *= -1;
-            }
-        }
-        protected override Matrix GetCameraView()
-        {
-            bool flipped = IsCameraFlipped();
-            Vector3 lookAtPosition = Vector3.UnitZ;
-            lookAtPosition = Vector3.Transform(lookAtPosition, Matrix.CreateRotationX(RotationXRadians));
-            lookAtPosition = Vector3.Transform(lookAtPosition, Matrix.CreateRotationY(RotationYRadians + (flipped ? MathHelper.Pi : 0)));
-            if (flipped)
-            {
-                lookAtPosition.X -= mvarAttachedLocation.X;
-                lookAtPosition.Y += mvarAttachedLocation.Y;
-                lookAtPosition.Z -= mvarAttachedLocation.Z;
-            }
-            else
-            {
-                lookAtPosition.X += mvarAttachedLocation.X;
-                lookAtPosition.Y += mvarAttachedLocation.Y;
-                lookAtPosition.Z += mvarAttachedLocation.Z;
-            }
-            lookAtPosition.Z *= -1;
-            lookAtPosition = Vector3.Transform(lookAtPosition, Viewer.Camera is TrackingCamera ? LookedAtPosition.XNAMatrix: mvarAttachedCar.position.XNAMatrix);
-            //Rotamos el vector vertical para que la cámara ruede con nosotros
-            Vector3 up;
-            if(Viewer.Camera is TrackingCamera)
-            {
-                up = Vector3.Up;
-            }
-            else
-            {
-                Matrix upRotation = mvarAttachedCar.position.XNAMatrix;
-                upRotation.Translation = Vector3.Zero;
-                up = Vector3.Transform(Vector3.Up, upRotation);
-            }
-            return Matrix.CreateLookAt(XnaLocation(cameraLocation), lookAtPosition, up);
-        }
-        public override void Update(long elapsedTime)
-        {
-            if(null!=mvarAttachedCar)
-            {
-                //cameraLocation.TileX = mvarAttachedCar.position.TileX;
-                //cameraLocation.TileZ = mvarAttachedCar.position.TileZ;
-                cameraLocation.Y = mvarAttachedLocation.Y;
-                if(IsCameraFlipped())
-                {
-                    cameraLocation.X = -mvarAttachedLocation.X;
-                    cameraLocation.Z = -mvarAttachedLocation.Z;
-                }
-                else
-                {
-                    cameraLocation.X = mvarAttachedLocation.X;
-                    cameraLocation.Z = mvarAttachedLocation.Z;
-                }
-                cameraLocation.Z *= -1;
-                cameraLocation = Vector3.Transform(cameraLocation, mvarAttachedCar.position.XNAMatrix);
-                cameraLocation.Z *= -1;
-            }
-            UpdateRotation(elapsedTime);
-        }
-    
-        protected virtual List<TrainCar> GetCameraCars()
-        {
-            return Viewer.microSim.PlayerTrain.Cars;
-        }
-        public virtual void NextCar()
-        {
-            List<TrainCar> coches = GetCameraCars();
-            SetCameraCar(mvarAttachedCar == coches.First() ? mvarAttachedCar : coches[coches.IndexOf(mvarAttachedCar) - 1]);
-        }
-        public virtual void PreviousCar()
-        {
-            List<TrainCar> coches = GetCameraCars();
-            SetCameraCar(mvarAttachedCar == coches.Last() ? mvarAttachedCar : coches[coches.IndexOf(mvarAttachedCar) + 1]);
-        }
-        public virtual void FirstCar()
-        {
-            List<TrainCar> coches = GetCameraCars();
-            SetCameraCar(coches.First());
-        }
-        public virtual void LastCar()
-        {
-            List<TrainCar> coches = GetCameraCars();
-            SetCameraCar(coches.Last());
-        }
-
-    }
 
     public class TrackingCamera : AttachedCamera
     {
@@ -1655,13 +1776,13 @@ namespace Tourmaline.Viewer3D
         {
             if (Front)
             {
-                SwapParams(this, Viewer.BackCamera);
-                Viewer.BackCamera.Activate();
+                //SwapParams(this, Viewer.BackCamera);
+                //Viewer.BackCamera.Activate();
             }
             else
             {
-                SwapParams(this, Viewer.FrontCamera);
-                Viewer.FrontCamera.Activate();
+                //SwapParams(this, Viewer.FrontCamera);
+                //Viewer.FrontCamera.Activate();
             }
         }
 

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Management;
+using System.Resources;
 using System.Threading;
 using System.Windows.Forms;
 using Microsoft.Xna.Framework;
@@ -54,8 +55,11 @@ namespace Tourmaline.Viewer3D
 
         // Cámaras
         public Camera Camera { get; set; } // Cámara actual
-        public TrackingCamera FrontCamera { get; private set; } // Camera 2
-        public TrackingCamera BackCamera { get; private set; } // Camera 3
+
+        public SFMCamera mainCamera { get; private set; } //Cámara por defecto para visualizar el tren.
+
+        //public TrackingCamera FrontCamera { get; private set; } // Camera 2
+        //public TrackingCamera BackCamera { get; private set; } // Camera 3
         //public Camera AbovegroundCamera { get; private set; } // Cámara previa a la que saltaremos automáticamente tras la vista de cabina.
         //public TracksideCamera TracksideCamera { get; private set; } // Camera 4
         //public SpecialTracksideCamera SpecialTracksideCamera { get; private set; } // Camera 4 for special points (platforms and level crossings)
@@ -132,14 +136,15 @@ namespace Tourmaline.Viewer3D
             UpdaterProcess = game.UpdaterProcess;
             LoaderProcess = game.LoaderProcess;
 
-            FrontCamera = new TrackingCamera(this, TrackingCamera.AttachedTo.Front);
-            BackCamera = new TrackingCamera(this, TrackingCamera.AttachedTo.Rear);
+            //FrontCamera = new TrackingCamera(this, TrackingCamera.AttachedTo.Front);
+            //BackCamera = new TrackingCamera(this, TrackingCamera.AttachedTo.Rear);
+            //TracksideCamera = new TracksideCamera(this,microSim.PlayerLocomotive);
+
+            mainCamera = new SFMCamera(this);
+            Camera = mainCamera;
             //WellKnownCameras = new List<Camera>();
             //WellKnownCameras.Add(TracksideCamera = new TracksideCamera(this));
             //WellKnownCameras.Add(SpecialTracksideCamera = new SpecialTracksideCamera(this));
-
-            //Camera = WellKnownCameras[0];
-            Camera = FrontCamera;
 
             ContentPath = Game.ContentPath;
             ResourcesPath = game.ResourcesPath;
