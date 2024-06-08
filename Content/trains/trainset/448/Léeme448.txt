@@ -1,0 +1,60 @@
+Renfe UT 448 Intercity Estrella V 1.0 
+-----------------------------------------------------------------
+
+3D: Joan Marc Farrero Caparrós
+Cabina: Blas_Dani
+Texturas y sonidos: Melquiadex
+E-Mail: joanmarc_1989@hotmail.com / Melquiadex@hotmail.com
+
+-----------------------------------------------------------------
+
+
+DESCRIPCIÓN
+--------------------------------------------
+
+La Serie 448 de Renfe es una evolución de la serie 444, es una serie de unidades eléctricas, con motor y cabinas en ambos extremos, destinadas en sus inicios a ofrecer servicios de larga distancia (Intercity). Se adjudicaron un total de 31 unidades de estos trenes en 3 lotes y se recibieron entre los años 1987 y 1989.
+
+El número de esta serie incialmente fue el 444.500 pero en el año 1992 se renumeró toda la serie 444.500 a 448. Las diferencias con sus predecesores, la serie 444, es una mayor velocidad punta, a pesar de usar los mismos motores, ya que se les cambió la relación de los engranajes que ofrece una velocidad máxima de 160 km/h a costa de un esfuerzo tractor algo menor. Además de la velocidad se les incorporó una cafetería moderna, teleindicadores, nuevos bogies para esta mayor velocidad, televisión, etc.
+
+Las primeras 6 unidades de la serie tenían un testero diferente al resto de las 25 restantes que recordaba a una lavadora por lo que recogieron ese apodo lavadoras. Actualmente estas diferencias ya han desaparecido porque están en un proceso de reforma en el que se han eliminado los sistemas de vídeo, furgón, cafetería añadiendo más plazas (238 en total), departamento para bicicletas, puertas automáticas y otros cambios ya que prácticamente todas ofrecen un servicio de media distancia en Cataluña (Regionales).
+
+
+CONTENIDO
+--------------------------------------------
+
+Este Add-On incluye 1 modelo que representa la UT 448 en sus colores Intercity.
+- Renfe UT 448 Estrella
+
+-----------------------------------------------------------------
+
+LICENCIA DE USO:
+
+1 PROHIBIDA LA PUBLICACIÓN DE LA MODIFICACIÓN DE CUALQUIER FICHERO RELACIONADO CON ESTE PRODUCTO SIN TENER PREVIO
+  CONSENTIMIENTO POR ESCRITO DEL AUTOR, excepto que sea para uso totalmente personal. Bajo ningun concepto, se podrán publicar capturas o videos de estas modificaciones personales en sitios públicos como pàgines web, foros y revistas. Esta infracción será considerada como si fuese una publicación de esta modificación personal haciendo una clara violación de este punto.
+
+2 PROHIBIDO EL USO DE TECNOLOGÍAS INVERSAS PARA LA MANIPULACIÓN DE QUALQUIER FICHERO.
+
+3 EL USUARIO SE HACE RESPONSABLE DE CUALQUIER DAÑO QUE PUEDA CAUSAR EL MAL USO DE ESTE PRODUCTO.
+
+4 PUBLICACIÓN DE CAPTURAS Y VIDEOS: La publicación de videos o capturas de este add on és totalmente LIBRE, excepto en las condiciones que se sitúan en el apartado 1. La publicación de capturas y videos queda RESTRINGIDA a los sitios donde no se fomenta la cultura del freeware o no són respetados los derechos de propiedad intelectual o de autor.
+
+
+LICENCIA DE DISTRIBUCIÓN:
+
+1 ESTÁ PROHIBIDA LA DISTRIBUCIÓN DE CUALQUIER FICHERO RELACIONADO CON EL PRODUCTO POR SEPARADO
+
+2 ESTÁ PROHIBIDA LA DISTRIBUCIÓN DE ESTE ADD-ON EN OTRAS PÁGINAS SIN MI CONSENTIMIENTO.
+
+3 ESTÁ PROHIBIDA LA DISTRIBUCIÓN EN REDES DE TIPO PEER2PEER COMO PUEDEN SER KAZAA, EDONKEY, EMULE, ETC.
+
+4 ESTÁ PROHIBIDA LA DISTRIBUCIÓN DE ESTE PRODUCTO EN PÀGINAS QUE DEN PRIVILEGIOS A LOS USUARIOS QUE PAGAN UNA QUOTA.
+
+5 ESTÁ PROHIBIDA LA DISTRIBUCIÓN DE ESTE PRODUCTO PÚBLICAMENTE BAJO CUALQUIER FORMATO FÍSICO COMO PUEDEN SER cD-ROMS, DVD-ROM, DISQUETES, ETC.
+
+6 ESTÁ PROHIBIDA LA DISTRIBUCIÓN DE ESTE PRODUCTO RECIBIENDO UNA COMPENSACIÓN ECONÓMICA A CAMBIO.
+
+===========================================================================================================================
+
+
+
+
