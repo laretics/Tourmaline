@@ -30,6 +30,7 @@ namespace Tourmaline.Viewer3D.Processes
         public float ViewingFOV = 45.0f;
         public bool LODViewingExtention = true; //Extensión de LOD a la máxima distancia de visualización
         public float LODBias = 0; //Nivel de detalle
+        public string resolution = "1280x800";
         public bool FullScreen = false; //Juego a pantalla completa        
 
         /// Carpeta con los contenidos del juego

@@ -66,6 +66,7 @@
     <Compile Include="Viewer3D\Common\SunMoonPos.cs" />
     <Compile Include="Viewer3D\DynamicTrack.cs" />
     <Compile Include="Viewer3D\Materials.cs" />
+    <Compile Include="Viewer3D\Popups\CCTVWindow.cs" />
     <Compile Include="Viewer3D\Popups\HUDWindow.cs" />
     <Compile Include="Viewer3D\Popups\LabelPrimitive.cs" />
     <Compile Include="Viewer3D\Popups\LayeredWindow.cs" />

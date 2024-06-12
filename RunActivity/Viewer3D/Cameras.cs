@@ -569,10 +569,16 @@ namespace Tourmaline.Viewer3D
     }
 
 
-    public class SFMCamera : RotatingCamera
+    public class SFMCamera :LookAtCamera
     {
         protected TrainCar mvarAttachedCar;
-        public SFMCamera(Viewer visor):base(visor) {}
+        public SFMCamera(Viewer visor):base(visor) 
+        {
+            mvarAttachedLocation = new Vector3(80, 10, 0);
+            RotationYRadians =(float)(-Math.PI/2);
+
+
+        }
         public override TrainCar AttachedCar => mvarAttachedCar;
         protected Vector3 mvarAttachedLocation;
         protected float CameraAltitudeOffset;

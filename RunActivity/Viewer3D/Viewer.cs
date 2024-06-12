@@ -52,6 +52,7 @@ namespace Tourmaline.Viewer3D
         public WindowManager WindowManager { get; private set; }
         public TrackTypesFile TrackTypes { get; private set; }
         public HUDWindow HUDWindow { get; private set; } // F5 hud
+        public CCTVWindow CCTVWindow { get; private set; } //Prueba de cámara
 
         // Cámaras
         public Camera Camera { get; set; } // Cámara actual
@@ -201,7 +202,10 @@ namespace Tourmaline.Viewer3D
 
             HUDWindow = new HUDWindow(WindowManager);
             messageWindow = new MessageWindow(WindowManager);
+            CCTVWindow = new CCTVWindow(WindowManager);
             WindowManager.Initialize();
+
+            CCTVWindow.Visible = true;
 
             World = new World(this);
             CameraActivate();

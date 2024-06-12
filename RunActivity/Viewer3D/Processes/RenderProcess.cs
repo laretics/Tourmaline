@@ -65,9 +65,8 @@ namespace Tourmaline.Viewer3D.Processes
             Game.Window.Title = "Tourmaline";
             GraphicsDeviceManager = new GraphicsDeviceManager(game);
 
-            //var windowsSizeParts = Game.Settings.WindowSize.Split(new[] { 'x' }, 2);
-            //GameWindowSize = new Point(Convert.ToInt32(windowsSizeParts[0]), Convert.ToInt32(windowsSizeParts[1]));
-            GameWindowSize = new Point(1024, 768);
+            string[] windowSizeCoordinates = game.resolution.Split(new[] { 'x' }, 2);
+            GameWindowSize = new Point(Convert.ToInt32(windowSizeCoordinates[0]), Convert.ToInt32(windowSizeCoordinates[1]));
 
             FrameRate = new SmoothedData();
             FrameTime = new SmoothedDataWithPercentiles();
