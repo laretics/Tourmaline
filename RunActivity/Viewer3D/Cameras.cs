@@ -1513,7 +1513,7 @@ namespace Tourmaline.Viewer3D
         protected bool BrowseForwards;
         const float BrowseSpeedMpS = 4;
         protected float ZDistanceM; // used to browse train;
-        protected Traveller browsedTraveller;
+        //protected Traveller browsedTraveller;
         protected float BrowseDistance = 20;
         public bool BrowseMode = false;
         protected float LowWagonOffsetLimit;
@@ -1556,16 +1556,16 @@ namespace Tourmaline.Viewer3D
             {
                 var trainCars = GetCameraCars();
                 BrowseDistance = mvarAttachedCar.CarLengthM * 0.5f;
-                if (Front)
-                {
-                    browsedTraveller = new Traveller(mvarAttachedCar.Train.FrontTDBTraveller);
-                    browsedTraveller.Move(-mvarAttachedCar.CarLengthM * 0.5f + ZDistanceM);
-                }
-                else
-                {
-                    browsedTraveller = new Traveller(mvarAttachedCar.Train.RearTDBTraveller);
-                    browsedTraveller.Move((mvarAttachedCar.CarLengthM - trainCars.First().CarLengthM - trainCars.Last().CarLengthM) * 0.5f + mvarAttachedCar.Train.Length - ZDistanceM);
-                }
+                //if (Front)
+                //{
+                //    browsedTraveller = new Traveller(mvarAttachedCar.Train.FrontTDBTraveller);
+                //    browsedTraveller.Move(-mvarAttachedCar.CarLengthM * 0.5f + ZDistanceM);
+                //}
+                //else
+                //{
+                //    browsedTraveller = new Traveller(mvarAttachedCar.Train.RearTDBTraveller);
+                //    browsedTraveller.Move((mvarAttachedCar.CarLengthM - trainCars.First().CarLengthM - trainCars.Last().CarLengthM) * 0.5f + mvarAttachedCar.Train.Length - ZDistanceM);
+                //}
                 //               LookedAtPosition = new WorldPosition(attachedCar.WorldPosition);
                 ComputeCarOffsets(this);
             }
@@ -1589,7 +1589,7 @@ namespace Tourmaline.Viewer3D
                 if (Front)
                 {
                     SetCameraCar(GetCameraCars().First());
-                    browsedTraveller = new Traveller(mvarAttachedCar.Train.FrontTDBTraveller);
+                    //browsedTraveller = new Traveller(mvarAttachedCar.Train.FrontTDBTraveller);
                     ZDistanceM = -mvarAttachedCar.CarLengthM / 2;
                     HighWagonOffsetLimit = 0;
                     LowWagonOffsetLimit = -mvarAttachedCar.CarLengthM;
@@ -1598,7 +1598,7 @@ namespace Tourmaline.Viewer3D
                 {
                     var trainCars = GetCameraCars();
                     SetCameraCar(trainCars.Last());
-                    browsedTraveller = new Traveller(mvarAttachedCar.Train.RearTDBTraveller);
+                    //browsedTraveller = new Traveller(mvarAttachedCar.Train.RearTDBTraveller);
                     ZDistanceM = -mvarAttachedCar.Train.Length + (trainCars.First().CarLengthM + trainCars.Last().CarLengthM) * 0.5f + mvarAttachedCar.CarLengthM / 2;
                     LowWagonOffsetLimit = -mvarAttachedCar.Train.Length + trainCars.First().CarLengthM * 0.5f;
                     HighWagonOffsetLimit = LowWagonOffsetLimit + mvarAttachedCar.CarLengthM;
@@ -1678,10 +1678,10 @@ namespace Tourmaline.Viewer3D
             {
                 UpdateTrainBrowsing(elapsedTime);
                 mvarAttachedLocation.Z += BrowseDistance * (Front ? 1 : -1);
-                LookedAtPosition.XNAMatrix = Matrix.CreateFromYawPitchRoll(-browsedTraveller.RotY, 0, 0);
-                LookedAtPosition.XNAMatrix.M41 = browsedTraveller.X;
-                LookedAtPosition.XNAMatrix.M42 = browsedTraveller.Y;
-                LookedAtPosition.XNAMatrix.M43 = browsedTraveller.Z;
+                //LookedAtPosition.XNAMatrix = Matrix.CreateFromYawPitchRoll(-browsedTraveller.RotY, 0, 0);
+                //LookedAtPosition.XNAMatrix.M41 = browsedTraveller.X;
+                //LookedAtPosition.XNAMatrix.M42 = browsedTraveller.Y;
+                //LookedAtPosition.XNAMatrix.M43 = browsedTraveller.Z;
                 //LookedAtPosition.TileX = browsedTraveller.TileX;
                 //LookedAtPosition.TileZ = browsedTraveller.TileZ;
                 LookedAtPosition.XNAMatrix.M43 *= -1;
@@ -1712,7 +1712,7 @@ namespace Tourmaline.Viewer3D
                     HighWagonOffsetLimit = LowWagonOffsetLimit;
                     LowWagonOffsetLimit -= mvarAttachedCar.CarLengthM;
                 }
-                browsedTraveller.Move((float)elapsedTime/1000 * mvarAttachedCar.Train.SpeedMpS + ZIncrM);
+                //browsedTraveller.Move((float)elapsedTime/1000 * mvarAttachedCar.Train.SpeedMpS + ZIncrM);
             }
             else if (BrowseForwards)
             {
@@ -1730,9 +1730,9 @@ namespace Tourmaline.Viewer3D
                     LowWagonOffsetLimit = HighWagonOffsetLimit;
                     HighWagonOffsetLimit += mvarAttachedCar.CarLengthM;
                 }
-                browsedTraveller.Move((float)elapsedTime/1000 * mvarAttachedCar.Train.SpeedMpS + ZIncrM);
+                //browsedTraveller.Move((float)elapsedTime/1000 * mvarAttachedCar.Train.SpeedMpS + ZIncrM);
             }
-            else browsedTraveller.Move((float)elapsedTime / 1000 * mvarAttachedCar.Train.SpeedMpS);
+            //else browsedTraveller.Move((float)elapsedTime / 1000 * mvarAttachedCar.Train.SpeedMpS);
         }
 
         protected void ComputeCarOffsets(TrackingCamera camera)
@@ -1889,8 +1889,8 @@ namespace Tourmaline.Viewer3D
                 if (!BrowseMode)
                 {
                     //                    LookedAtPosition = new WorldPosition(attachedCar.WorldPosition);
-                    browsedTraveller = new Traveller(mvarAttachedCar.Train.FrontTDBTraveller);
-                    browsedTraveller.Move(-mvarAttachedCar.CarLengthM * 0.5f + ZDistanceM);
+                    //browsedTraveller = new Traveller(mvarAttachedCar.Train.FrontTDBTraveller);
+                    //browsedTraveller.Move(-mvarAttachedCar.CarLengthM * 0.5f + ZDistanceM);
                     BrowseDistance = mvarAttachedCar.CarLengthM * 0.5f;
                     BrowseMode = true;
                 }
@@ -1906,9 +1906,9 @@ namespace Tourmaline.Viewer3D
                 if (!BrowseMode)
                 {
                     //                    LookedAtPosition = new WorldPosition(attachedCar.WorldPosition);
-                    browsedTraveller = new Traveller(mvarAttachedCar.Train.RearTDBTraveller);
+                    //browsedTraveller = new Traveller(mvarAttachedCar.Train.RearTDBTraveller);
                     var trainCars = GetCameraCars();
-                    browsedTraveller.Move((mvarAttachedCar.CarLengthM - trainCars.First().CarLengthM - trainCars.Last().CarLengthM) * 0.5f + mvarAttachedCar.Train.Length + ZDistanceM);
+                    //browsedTraveller.Move((mvarAttachedCar.CarLengthM - trainCars.First().CarLengthM - trainCars.Last().CarLengthM) * 0.5f + mvarAttachedCar.Train.Length + ZDistanceM);
                     BrowseDistance = mvarAttachedCar.CarLengthM * 0.5f;
                     BrowseMode = true;
                 }

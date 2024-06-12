@@ -121,8 +121,8 @@ namespace Tourmaline.Viewer3D
         public readonly SharedShape SharedShape;
 
         /// <summary>
-        /// Construct and initialize the class
-        /// This constructor is for objects described by a MSTS shape file
+        /// Construye e inicializa la clase
+        /// Este constructor es para los objetos descritos por un archivo shape de MSTS
         /// </summary>
         public StaticShape(Viewer viewer, string path, WorldPosition position, ShapeFlags flags)
         {
@@ -163,23 +163,24 @@ namespace Tourmaline.Viewer3D
 
             if (shapes[0].SharedShape.LodControls.Length > 0)
             {
-                // We need both ends of the distance levels. We render the first but view as far as the last.
+                // Se necesitan los dos extremos de niveles de distancia.
+                // Se renderiza el primero pero se ve tan lejos como el último.
                 var dlHighest = shapes[0].SharedShape.LodControls[0].DistanceLevels.First();
                 var dlLowest = shapes[0].SharedShape.LodControls[0].DistanceLevels.Last();
 
-                // Object radius should extend from central location to the furthest instance location PLUS the actual object radius.
+                // El radio del objeto debería extenderse del centro a la última localización de la instancia
+                // MAS el radio del objeto actual. 
                 ObjectRadius = shapes.Max(s => (Location.Location - s.Location.Location).Length()) + dlHighest.ViewSphereRadius;
 
-                // Object viewing distance is easy because it's based on the outside of the object radius.
-                //if (viewer.Settings.LODViewingExtention)
-                //    ObjectViewingDistance = float.MaxValue;
-                //else
-                //    ObjectViewingDistance = dlLowest.ViewingDistance;
-
-                ObjectViewingDistance = float.MaxValue;
+                // La distancia de visualización del objeto es fácil porque se basa en el exterior
+                // del radio del objeto.
+                if (Processes.Game.Instance.LODViewingExtention)
+                    ObjectViewingDistance = float.MaxValue;
+                else
+                    ObjectViewingDistance = dlLowest.ViewingDistance;
             }
 
-            // Create all the primitives for the shared shape.
+            // Genera todas las primitivas para la shape compartida.
             var prims = new List<ShapePrimitiveInstances>();
             foreach (var lod in shapes[0].SharedShape.LodControls)
                 for (var subObjectIndex = 0; subObjectIndex < lod.DistanceLevels[0].SubObjects.Length; subObjectIndex++)
@@ -190,17 +191,12 @@ namespace Tourmaline.Viewer3D
 
         static WorldPosition GetCenterLocation(List<StaticShape> shapes)
         {
-            //var tileX = shapes.Min(s => s.Location.TileX);
-            //var tileZ = shapes.Min(s => s.Location.TileZ);
-            //Debug.Assert(tileX == shapes.Max(s => s.Location.TileX));
-            //Debug.Assert(tileZ == shapes.Max(s => s.Location.TileZ));
             var minX = shapes.Min(s => s.Location.Location.X);
             var maxX = shapes.Max(s => s.Location.Location.X);
             var minY = shapes.Min(s => s.Location.Location.Y);
             var maxY = shapes.Max(s => s.Location.Location.Y);
             var minZ = shapes.Min(s => s.Location.Location.Z);
             var maxZ = shapes.Max(s => s.Location.Location.Z);
-            //return new WorldPosition() { TileX = tileX, TileZ = tileZ, Location = new Vector3((minX + maxX) / 2, (minY + maxY) / 2, (minZ + maxZ) / 2) };
             return new WorldPosition() { Location = new Vector3((minX + maxX) / 2, (minY + maxY) / 2, (minZ + maxZ) / 2) };
         }
 
@@ -223,8 +219,6 @@ namespace Tourmaline.Viewer3D
 
         public override void PrepareFrame(RenderFrame frame, long elapsedTime)
         {
-            //var dTileX = Location.TileX - Viewer.Camera.TileX;
-            //var dTileZ = Location.TileZ - Viewer.Camera.TileZ;
             var mstsLocation = Location.Location;// + new Vector3(dTileX * 2048, 0, dTileZ * 2048);
             var xnaMatrix = Matrix.CreateTranslation(mstsLocation.X, mstsLocation.Y, -mstsLocation.Z);
             foreach (var primitive in Primitives)
@@ -242,14 +236,14 @@ namespace Tourmaline.Viewer3D
     }
 
     /// <summary>
-    /// Has a heirarchy of objects that can be moved by adjusting the XNAMatrices
-    /// at each node.
+    /// Esta shape tiene una jerarquía de objetos que se pueden mover a base
+    /// de ajustar las matrices XNAMatrices en cada nodo.
     /// </summary>
     public class PoseableShape : StaticShape
     {
         protected static Dictionary<string, bool> SeenShapeAnimationError = new Dictionary<string, bool>();
 
-        public Matrix[] XNAMatrices = new Matrix[0];  // the positions of the subobjects
+        public Matrix[] XNAMatrices = new Matrix[0];  // las posiciones de los sub-objetos
 
         public readonly int[] Hierarchy;
 
@@ -277,14 +271,15 @@ namespace Tourmaline.Viewer3D
         }
 
         /// <summary>
-        /// Adjust the pose of the specified node to the frame position specifed by key.
+        /// Ajusta la posición del nodo especificado a la posición del frame que
+        /// se especifica por su clave (key)
         /// </summary>
         public void AnimateMatrix(int iMatrix, float key)
         {
-            // Animate the given matrix.
+            // Anima la matriz dada.
             AnimateOneMatrix(iMatrix, key);
 
-            // Animate all child nodes in the hierarchy too.
+            // Anima todos los nodos hijos en la jerarquía también.
             for (var i = 0; i < Hierarchy.Length; i++)
                 if (Hierarchy[i] == iMatrix)
                     AnimateMatrix(i, key);
@@ -295,36 +290,38 @@ namespace Tourmaline.Viewer3D
             if (SharedShape.Animations == null || SharedShape.Animations.Count == 0)
             {
                 if (!SeenShapeAnimationError.ContainsKey(SharedShape.FilePath))
-                    Trace.TraceInformation("Ignored missing animations data in shape {0}", SharedShape.FilePath);
+                    Trace.TraceInformation("Datos de animaciones no encontradas e ignoradas en shape {0}", SharedShape.FilePath);
                 SeenShapeAnimationError[SharedShape.FilePath] = true;
-                return;  // animation is missing
+                return;  // Falta la animación.
             }
 
             if (iMatrix < 0 || iMatrix >= SharedShape.Animations[0].anim_nodes.Count || iMatrix >= XNAMatrices.Length)
             {
                 if (!SeenShapeAnimationError.ContainsKey(SharedShape.FilePath))
-                    Trace.TraceInformation("Ignored out of bounds matrix {1} in shape {0}", SharedShape.FilePath, iMatrix);
+                    Trace.TraceInformation("Ignorado índice fuera de rango en matriz {1} en shape {0}", SharedShape.FilePath, iMatrix);
                 SeenShapeAnimationError[SharedShape.FilePath] = true;
-                return;  // mismatched matricies
+                return;  // Matrices con parámetros erróneos
             }
 
             var anim_node = SharedShape.Animations[0].anim_nodes[iMatrix];
             if (anim_node.controllers.Count == 0)
-                return;  // missing controllers
+                return;  // Faltan los controladores
 
-            // Start with the intial pose in the shape file.
+            // Comienza con la posición inicial en el archivo Shape.
             var xnaPose = SharedShape.Matrices[iMatrix];
 
             foreach (controller controller in anim_node.controllers)
             {
-                // Determine the frame index from the current frame ('key'). We will be interpolating between two key
-                // frames (the items in 'controller') so we need to find the last one LESS than the current frame
-                // and interpolate with the one after it.
+                // Determina el índice de frame del frame actual ('key').
+                // Se calcula la interpolación entre dos fotogramas key
+                // (que son los items en 'controller') de manera que
+                // tendremos que buscar el último MENOR que el fotograma actual
+                // e interpolaremos con el siguiente tras él.
                 var index = 0;
                 for (var i = 0; i < controller.Count; i++)
                     if (controller[i].Frame <= key)
                         index = i;
-                    else if (controller[i].Frame > key) // Optimisation, not required for algorithm.
+                    else if (controller[i].Frame > key) // No hace falta optimización para el algoritmo.
                         break;
 
                 var position1 = controller[index];
@@ -332,8 +329,10 @@ namespace Tourmaline.Viewer3D
                 var frame1 = position1.Frame;
                 var frame2 = position2.Frame;
 
-                // Make sure to clamp the amount, as we can fall outside the frame range. Also ensure there's a
-                // difference between frame1 and frame2 or we'll crash.
+                // Hay que limitar entre dos valores la cantidad porque es posible
+                // salirse del rango de fotogramas.
+                // Además hay que asegurarse de que los valores de frame1 y frame2
+                // no coinciden porque si no haremos una división por cero.
                 var amount = frame1 < frame2 ? MathHelper.Clamp((key - frame1) / (frame2 - frame1), 0, 1) : 0;
 
                 if (position1.GetType() == typeof(slerp_rot))  // rotate the existing matrix
@@ -347,7 +346,7 @@ namespace Tourmaline.Viewer3D
                     xnaPose = Matrix.CreateFromQuaternion(q);
                     xnaPose.Translation = location;
                 }
-                else if (position1.GetType() == typeof(linear_key))  // a key sets an absolute position, vs shifting the existing matrix
+                else if (position1.GetType() == typeof(linear_key))  // una clave (key) asigna una posición absoluta, o bien desplazaremos la matriz existente
                 {
                     linear_key MSTS1 = (linear_key)position1;
                     linear_key MSTS2 = (linear_key)position2;
@@ -356,7 +355,7 @@ namespace Tourmaline.Viewer3D
                     Vector3 v = Vector3.Lerp(XNA1, XNA2, amount);
                     xnaPose.Translation = v;
                 }
-                else if (position1.GetType() == typeof(tcb_key)) // a tcb_key sets an absolute rotation, vs rotating the existing matrix
+                else if (position1.GetType() == typeof(tcb_key)) // una clave tcb (tcb_key) asigna una rotación absoluta o bien rotaremos la matriz existente.
                 {
                     tcb_key MSTS1 = (tcb_key)position1;
                     tcb_key MSTS2 = (tcb_key)position2;
@@ -368,21 +367,21 @@ namespace Tourmaline.Viewer3D
                     xnaPose.Translation = location;
                 }
             }
-            XNAMatrices[iMatrix] = xnaPose;  // update the matrix
+            XNAMatrices[iMatrix] = xnaPose;  // actualizamos la matriz
         }
     }
 
     /// <summary>
-    /// An animated shape has a continuous repeating motion defined
-    /// in the animations of the shape file.
+    /// Una forma animada tiene un movimiento continuo definido
+    /// en las animaciones del archivo shape.
     /// </summary>
     public class AnimatedShape : PoseableShape
     {
-        protected float AnimationKey;  // advances with time
-        protected float FrameRateMultiplier = 1; // e.g. in passenger view shapes MSTS divides by 30 the frame rate; this is the inverse
+        protected float AnimationKey;  // avanza con el tiempo
+        protected float FrameRateMultiplier = 1; // por ejemplo, en la vista del pasajero MSTS divide por 30 el ratio de fotogramas (frame rate); este valor es el inverso
 
         /// <summary>
-        /// Construct and initialize the class
+        /// Construye e inicia la clase
         /// </summary>
         public AnimatedShape(Viewer viewer, string path, WorldPosition initialPosition, ShapeFlags flags, float frameRateDivisor = 1.0f)
             : base(viewer, path, initialPosition, flags)
@@ -392,14 +391,14 @@ namespace Tourmaline.Viewer3D
 
         public override void PrepareFrame(RenderFrame frame, long elapsedTime)
         {
-            // if the shape has animations
+            // si la shape tiene animaciones...
             if (SharedShape.Animations?.Count > 0 && SharedShape.Animations[0].FrameCount > 0)
             {
                 AnimationKey += SharedShape.Animations[0].FrameRate * (float)elapsedTime/1000 * FrameRateMultiplier;
                 while (AnimationKey > SharedShape.Animations[0].FrameCount) AnimationKey -= SharedShape.Animations[0].FrameCount;
                 while (AnimationKey < 0) AnimationKey += SharedShape.Animations[0].FrameCount;
 
-                // Update the pose for each matrix
+                // Actualiza la forma para cada matriz
                 for (var matrix = 0; matrix < SharedShape.Matrices.Length; ++matrix)
                     AnimateMatrix(matrix, AnimationKey);
             }
@@ -407,7 +406,7 @@ namespace Tourmaline.Viewer3D
         }
     }
 
-    //Class AnalogClockShape to animate analog OR-Clocks as child of AnimatedShape <- PoseableShape <- StaticShape
+    //Clase AnalogClockShape para animar los relojes de Open Rails como clase hija de AnimatedShape <- PoseableShape <- StaticShape
     public class AnalogClockShape : AnimatedShape
     {
         public AnalogClockShape(Viewer viewer, string path, WorldPosition initialPosition, ShapeFlags flags, float frameRateDivisor = 1.0f)
@@ -420,41 +419,42 @@ namespace Tourmaline.Viewer3D
             if (SharedShape.Animations == null || SharedShape.Animations.Count == 0)
             {
                 if (!SeenShapeAnimationError.ContainsKey(SharedShape.FilePath))
-                    Trace.TraceInformation("Ignored missing animations data in shape {0}", SharedShape.FilePath);
+                    Trace.TraceInformation("Se ignoran datos de animación que faltan en shape {0}", SharedShape.FilePath);
                 SeenShapeAnimationError[SharedShape.FilePath] = true;
-                return;  // animation is missing
+                return;  // falta la animación
             }
 
             if (iMatrix < 0 || iMatrix >= SharedShape.Animations[0].anim_nodes.Count || iMatrix >= XNAMatrices.Length)
             {
                 if (!SeenShapeAnimationError.ContainsKey(SharedShape.FilePath))
-                    Trace.TraceInformation("Ignored out of bounds matrix {1} in shape {0}", SharedShape.FilePath, iMatrix);
+                    Trace.TraceInformation("Se ignoran índices fuera de límites de la matriz {1} en shape {0}", SharedShape.FilePath, iMatrix);
                 SeenShapeAnimationError[SharedShape.FilePath] = true;
-                return;  // mismatched matricies
+                return;  // matrices con límites erróneos
             }
 
             var anim_node = SharedShape.Animations[0].anim_nodes[iMatrix];
             if (anim_node.controllers.Count == 0)
-                return;  // missing controllers
+                return;  //faltan controladores
 
-            // Start with the intial pose in the shape file.
+            // Comienza con la posición inicial en el archivo de forma,
             var xnaPose = SharedShape.Matrices[iMatrix];
 
             foreach (controller controller in anim_node.controllers)
             {
-                // Determine the frame index from the current frame ('key'). We will be interpolating between two key
-                // frames (the items in 'controller') so we need to find the last one LESS than the current frame
-                // and interpolate with the one after it.
+                // Determina el índice del fotograma del fotograma actual ('key).
+                // Interpolaremos entre dos fotogramas clave (los items en 'controller')
+                // de forma que será necesario encontrar el último MENOR que el actual
+                // e interpolar con el siguiente.
                 var index = 0;
                 for (var i = 0; i < controller.Count; i++)
                     if (controller[i].Frame <= key)
                         index = i;
-                    else if (controller[i].Frame > key) // Optimisation, not required for algorithm.
+                    else if (controller[i].Frame > key) // Optimización, no requerido para el algoritmo.
                         break;
 
-                //OR-Clock-hands Animation -------------------------------------------------------------------------------------------------------------
+                //Animación de las agujas de los relojes OpenRails
                 var animName = anim_node.Name.ToLowerInvariant();
-                if (animName.IndexOf("hand_clock") > -1)           //anim_node seems to be an OR-Clock-hand-matrix of an analog OR-Clock
+                if (animName.IndexOf("hand_clock") > -1)
                 {
                     int gameTimeInSec = Convert.ToInt32(Viewer.microSim.gameTime.TotalGameTime.Ticks / 100000); //Game time as integer in milliseconds
                     int clockHour = gameTimeInSec / 360000 % 24;                          //HOUR of Game time
@@ -533,15 +533,15 @@ namespace Tourmaline.Viewer3D
                     }
                 }
             }
-            XNAMatrices[iMatrix] = xnaPose;  // update the matrix
+            XNAMatrices[iMatrix] = xnaPose;  // actualiza la matriz
         }
     }
 
     public class SwitchTrackShape : PoseableShape
     {
-        protected float AnimationKey;  // tracks position of points as they move left and right
+        protected float AnimationKey;  // define la posición de las agujas en su movimiento a directa o a desviada
 
-        TrJunctionNode TrJunctionNode;  // has data on current aligment for the switch
+        TrJunctionNode TrJunctionNode;  // tiene datoos en la alineación actual para el cambio
         uint MainRoute;                  // 0 or 1 - which route is considered the main route
 
         public SwitchTrackShape(Viewer viewer, string path, WorldPosition position, TrJunctionNode trj)
@@ -574,777 +574,11 @@ namespace Tourmaline.Viewer3D
         }
     }
 
-    /*
-    public class SpeedPostShape : PoseableShape
-    {
-        SpeedPostObj SpeedPostObj;  // has data on current aligment for the switch
-        VertexPositionNormalTexture[] VertexList;
-        int NumVertices;
-        int NumIndices;
-        public short[] TriangleListIndices;// Array of indices to vertices for triangles
-
-        protected float AnimationKey;  // tracks position of points as they move left and right
-        ShapePrimitive shapePrimitive;
-        public SpeedPostShape(Viewer viewer, string path, WorldPosition position, SpeedPostObj spo)
-            : base(viewer, path, position)
-        {
-
-            SpeedPostObj = spo;
-            var maxVertex = SpeedPostObj.Sign_Shape.NumShapes * 48;// every face has max 7 digits, each has 2 triangles
-            var material = viewer.MaterialManager.Load("Scenery", Helpers.GetRouteTextureFile(viewer.Simulator, Helpers.TextureFlags.None, SpeedPostObj.Speed_Digit_Tex), (int)(SceneryMaterialOptions.None | SceneryMaterialOptions.AlphaBlendingBlend), 0);
-
-            // Create and populate a new ShapePrimitive
-            NumVertices = NumIndices = 0;
-            var i = 0; var id = -1; var size = SpeedPostObj.Text_Size.Size; var idlocation = 0;
-            id = SpeedPostObj.GetTrItemID(idlocation);
-            while (id >= 0)
-            {
-                SpeedPostItem item;
-                string speed = "";
-                try
-                {
-                    item = (SpeedPostItem)(viewer.Simulator.TDB.TrackDB.TrItemTable[id]);
-                }
-                catch
-                {
-                    throw;  // Error to be handled in Scenery.cs
-                }
-
-                //determine what to show: speed or number used in German routes
-                if (item.ShowNumber)
-                {
-                    speed += item.DisplayNumber;
-                    if (!item.ShowDot) speed.Replace(".", "");
-                }
-                else
-                {
-                    //determine if the speed is for passenger or freight
-                    if (item.IsFreight == true && item.IsPassenger == false) speed += "F";
-                    else if (item.IsFreight == false && item.IsPassenger == true) speed += "P";
-
-                    if (item != null) speed += item.SpeedInd;
-                }
-                VertexList = new VertexPositionNormalTexture[maxVertex];
-                TriangleListIndices = new short[maxVertex / 2 * 3]; // as is NumIndices
-
-                for (i = 0; i < SpeedPostObj.Sign_Shape.NumShapes; i++)
-                {
-                    //start position is the center of the text
-                    var start = new Vector3(SpeedPostObj.Sign_Shape.ShapesInfo[4 * i + 0], SpeedPostObj.Sign_Shape.ShapesInfo[4 * i + 1], SpeedPostObj.Sign_Shape.ShapesInfo[4 * i + 2]);
-                    var rotation = SpeedPostObj.Sign_Shape.ShapesInfo[4 * i + 3];
-
-                    //find the left-most of text
-                    Vector3 offset;
-                    if (Math.Abs(SpeedPostObj.Text_Size.DY) > 0.01) offset = new Vector3(0 - size / 2, 0, 0);
-                    else offset = new Vector3(0, 0 - size / 2, 0);
-                    offset.X -= speed.Length * SpeedPostObj.Text_Size.DX / 2;
-
-                    offset.Y -= speed.Length * SpeedPostObj.Text_Size.DY / 2;
-
-                    for (var j = 0; j < speed.Length; j++)
-                    {
-                        var tX = GetTextureCoordX(speed[j]); var tY = GetTextureCoordY(speed[j]);
-                        var rot = Matrix.CreateRotationY(-rotation);
-
-                        //the left-bottom vertex
-                        Vector3 v = new Vector3(offset.X, offset.Y, 0.01f);
-                        v = Vector3.Transform(v, rot);
-                        v += start; Vertex v1 = new Vertex(v.X, v.Y, v.Z, 0, 0, -1, tX, tY);
-
-                        //the right-bottom vertex
-                        v.X = offset.X + size; v.Y = offset.Y; v.Z = 0.01f;
-                        v = Vector3.Transform(v, rot);
-                        v += start; Vertex v2 = new Vertex(v.X, v.Y, v.Z, 0, 0, -1, tX + 0.25f, tY);
-
-                        //the right-top vertex
-                        v.X = offset.X + size; v.Y = offset.Y + size; v.Z = 0.01f;
-                        v = Vector3.Transform(v, rot);
-                        v += start; Vertex v3 = new Vertex(v.X, v.Y, v.Z, 0, 0, -1, tX + 0.25f, tY - 0.25f);
-
-                        //the left-top vertex
-                        v.X = offset.X; v.Y = offset.Y + size; v.Z = 0.01f;
-                        v = Vector3.Transform(v, rot);
-                        v += start; Vertex v4 = new Vertex(v.X, v.Y, v.Z, 0, 0, -1, tX, tY - 0.25f);
-
-                        //memory may not be enough
-                        if (NumVertices > maxVertex - 4)
-                        {
-                            VertexPositionNormalTexture[] TempVertexList = new VertexPositionNormalTexture[maxVertex + 128];
-                            short[] TempTriangleListIndices = new short[(maxVertex + 128) / 2 * 3]; // as is NumIndices
-                            for (var k = 0; k < maxVertex; k++) TempVertexList[k] = VertexList[k];
-                            for (var k = 0; k < maxVertex / 2 * 3; k++) TempTriangleListIndices[k] = TriangleListIndices[k];
-                            TriangleListIndices = TempTriangleListIndices;
-                            VertexList = TempVertexList;
-                            maxVertex += 128;
-                        }
-
-                        //create first triangle
-                        TriangleListIndices[NumIndices++] = (short)NumVertices;
-                        TriangleListIndices[NumIndices++] = (short)(NumVertices + 2);
-                        TriangleListIndices[NumIndices++] = (short)(NumVertices + 1);
-                        // Second triangle:
-                        TriangleListIndices[NumIndices++] = (short)NumVertices;
-                        TriangleListIndices[NumIndices++] = (short)(NumVertices + 3);
-                        TriangleListIndices[NumIndices++] = (short)(NumVertices + 2);
-
-                        //create vertex
-                        VertexList[NumVertices].Position = v1.Position; VertexList[NumVertices].Normal = v1.Normal; VertexList[NumVertices].TextureCoordinate = v1.TexCoord;
-                        VertexList[NumVertices + 1].Position = v2.Position; VertexList[NumVertices + 1].Normal = v2.Normal; VertexList[NumVertices + 1].TextureCoordinate = v2.TexCoord;
-                        VertexList[NumVertices + 2].Position = v3.Position; VertexList[NumVertices + 2].Normal = v3.Normal; VertexList[NumVertices + 2].TextureCoordinate = v3.TexCoord;
-                        VertexList[NumVertices + 3].Position = v4.Position; VertexList[NumVertices + 3].Normal = v4.Normal; VertexList[NumVertices + 3].TextureCoordinate = v4.TexCoord;
-                        NumVertices += 4;
-                        offset.X += SpeedPostObj.Text_Size.DX; offset.Y += SpeedPostObj.Text_Size.DY; //move to next digit
-                    }
-
-                }
-                idlocation++;
-                id = SpeedPostObj.GetTrItemID(idlocation);
-            }
-            //create the shape primitive
-            var newTList = new short[NumIndices];
-            Array.Copy(TriangleListIndices, newTList, NumIndices);
-            var newVList = new VertexPositionNormalTexture[NumVertices];
-            Array.Copy(VertexList, newVList, NumVertices);
-            IndexBuffer IndexBuffer = new IndexBuffer(viewer.GraphicsDevice, typeof(short),
-                                                            NumIndices, BufferUsage.WriteOnly);
-            IndexBuffer.SetData(newTList);
-            shapePrimitive = new ShapePrimitive(material, new SharedShape.VertexBufferSet(newVList, viewer.GraphicsDevice), IndexBuffer, NumIndices / 3, new[] { -1 }, 0);
-
-        }
-
-        static float GetTextureCoordX(char c)
-        {
-            float x = (c - '0') % 4 * 0.25f;
-            if (c == '.') x = 0;
-            else if (c == 'P') x = 0.5f;
-            else if (c == 'F') x = 0.75f;
-            if (x < 0) x = 0;
-            if (x > 1) x = 1;
-            return x;
-        }
-
-        static float GetTextureCoordY(char c)
-        {
-            if (c == '0' || c == '1' || c == '2' || c == '3') return 0.25f;
-            if (c == '4' || c == '5' || c == '6' || c == '7') return 0.5f;
-            if (c == '8' || c == '9' || c == 'P' || c == 'F') return 0.75f;
-            return 1.0f;
-        }
-
-        public override void PrepareFrame(RenderFrame frame, ElapsedTime elapsedTime)
-        {
-            // Offset relative to the camera-tile origin
-            int dTileX = this.Location.TileX - Viewer.Camera.TileX;
-            int dTileZ = this.Location.TileZ - Viewer.Camera.TileZ;
-            Vector3 tileOffsetWrtCamera = new Vector3(dTileX * 2048, 0, -dTileZ * 2048);
-
-            // Initialize xnaXfmWrtCamTile to object-tile to camera-tile translation:
-            Matrix xnaXfmWrtCamTile = Matrix.CreateTranslation(tileOffsetWrtCamera);
-            xnaXfmWrtCamTile = this.Location.XNAMatrix * xnaXfmWrtCamTile; // Catenate to world transformation
-            // (Transformation is now with respect to camera-tile origin)
-
-            // TODO: Make this use AddAutoPrimitive instead.
-            frame.AddPrimitive(this.shapePrimitive.Material, this.shapePrimitive, RenderPrimitiveGroup.World, ref xnaXfmWrtCamTile, ShapeFlags.None);
-
-            // if there is no animation, that's normal and so no animation missing error is displayed
-            if (SharedShape.Animations == null || SharedShape.Animations.Count == 0)
-            {
-                if (!SeenShapeAnimationError.ContainsKey(SharedShape.FilePath))
-                    SeenShapeAnimationError[SharedShape.FilePath] = true;
-            }
-            // Update the pose
-            for (int iMatrix = 0; iMatrix < SharedShape.Matrices.Length; ++iMatrix)
-                AnimateMatrix(iMatrix, AnimationKey);
-
-            SharedShape.PrepareFrame(frame, Location, XNAMatrices, Flags);
-        }
-
-        internal override void Mark()
-        {
-            shapePrimitive.Mark();
-            base.Mark();
-        }
-    } // class SpeedPostShape
-    */
-
-    /*
-
-    public class LevelCrossingShape : PoseableShape
-    {
-        readonly LevelCrossingObj CrossingObj;
-        readonly SoundSource Sound;
-        readonly LevelCrossing Crossing;
-
-        readonly float AnimationFrames;
-        readonly float AnimationSpeed;
-        bool Opening = true;
-        float AnimationKey;
-
-        public LevelCrossingShape(Viewer viewer, string path, WorldPosition position, ShapeFlags shapeFlags, LevelCrossingObj crossingObj)
-            : base(viewer, path, position, shapeFlags)
-        {
-            CrossingObj = crossingObj;
-            if (!CrossingObj.silent)
-            {
-                var soundFileName = "";
-                if (CrossingObj.SoundFileName != "") soundFileName = CrossingObj.SoundFileName;
-                else if (SharedShape.SoundFileName != "") soundFileName = SharedShape.SoundFileName;
-                else if (viewer.Simulator.TRK.Tr_RouteFile.DefaultCrossingSMS != null) soundFileName = viewer.Simulator.TRK.Tr_RouteFile.DefaultCrossingSMS;
-                if (soundFileName != "")
-                {
-                    var soundPath = viewer.Simulator.RoutePath + @"\\sound\\" + soundFileName;
-                    try
-                    {
-                        Sound = new SoundSource(viewer, position.WorldLocation, Events.Source.MSTSCrossing, soundPath);
-                        viewer.SoundProcess.AddSoundSources(this, new List<SoundSourceBase>() { Sound });
-                    }
-                    catch
-                    {
-                        soundPath = viewer.Simulator.BasePath + @"\\sound\\" + soundFileName;
-                        try
-                        {
-                            Sound = new SoundSource(viewer, position.WorldLocation, Events.Source.MSTSCrossing, soundPath);
-                            viewer.SoundProcess.AddSoundSources(this, new List<SoundSourceBase>() { Sound });
-                        }
-                        catch (Exception error)
-                        {
-                            Trace.WriteLine(new FileLoadException(soundPath, error));
-                        }
-                    }
-                }
-            }
-            Crossing = viewer.Simulator.LevelCrossings.CreateLevelCrossing(
-                position,
-                from tid in CrossingObj.trItemIDList where tid.db == 0 select tid.dbID,
-                from tid in CrossingObj.trItemIDList where tid.db == 1 select tid.dbID,
-                CrossingObj.levelCrParameters.warningTime,
-                CrossingObj.levelCrParameters.minimumDistance);
-            // If there are no animations, we leave the frame count and speed at 0 and nothing will try to animate.
-            if (SharedShape.Animations != null && SharedShape.Animations.Count > 0)
-            {
-                // LOOPED COSSINGS (animTiming < 0)
-                //     MSTS plays through all the frames of the animation for "closed" and sits on frame 0 for "open". The
-                //     speed of animation is the normal speed (frame rate at 30FPS) scaled by the timing value. Since the
-                //     timing value is negative, the animation actually plays in reverse.
-                // NON-LOOPED CROSSINGS (animTiming > 0)
-                //     MSTS plays through the first 1.0 seconds of the animation forwards for closing and backwards for
-                //     opening. The number of frames defined doesn't matter; the animation is limited by time so the frame
-                //     rate (based on 30FPS) is what's needed.
-                AnimationFrames = CrossingObj.levelCrTiming.animTiming < 0 ? SharedShape.Animations[0].FrameCount : SharedShape.Animations[0].FrameRate / 30f;
-                AnimationSpeed = SharedShape.Animations[0].FrameRate / 30f / CrossingObj.levelCrTiming.animTiming;
-            }
-        }
-
-        public override void Unload()
-        {
-            if (Sound != null)
-            {
-                Viewer.SoundProcess.RemoveSoundSources(this);
-                Sound.Dispose();
-            }
-            base.Unload();
-        }
-
-        public override void PrepareFrame(RenderFrame frame, ElapsedTime elapsedTime)
-        {
-            if (CrossingObj.visible != true)
-                return;
-
-            if (Opening == Crossing.HasTrain)
-            {
-                Opening = !Crossing.HasTrain;
-                if (Sound != null) Sound.HandleEvent(Opening ? Event.CrossingOpening : Event.CrossingClosing);
-            }
-
-            if (Opening)
-                AnimationKey -= elapsedTime.ClockSeconds * AnimationSpeed;
-            else
-                AnimationKey += elapsedTime.ClockSeconds * AnimationSpeed;
-
-            if (CrossingObj.levelCrTiming.animTiming < 0)
-            {
-                // Stick to frame 0 for "open" and loop for "closed".
-                if (Opening) AnimationKey = 0;
-                if (AnimationKey < 0) AnimationKey += AnimationFrames;
-            }
-            if (AnimationKey < 0) AnimationKey = 0;
-            if (AnimationKey > AnimationFrames) AnimationKey = AnimationFrames;
-
-            for (var i = 0; i < SharedShape.Matrices.Length; ++i)
-                AnimateMatrix(i, AnimationKey);
-
-            SharedShape.PrepareFrame(frame, Location, XNAMatrices, Flags);
-        }
-    }
-
-    public class HazzardShape : PoseableShape
-    {
-        readonly HazardObj HazardObj;
-        readonly Hazzard Hazzard;
-
-        readonly int AnimationFrames;
-        float Moved = 0f;
-        float AnimationKey;
-        float DelayHazAnimation;
-
-        public static HazzardShape CreateHazzard(Viewer viewer, string path, WorldPosition position, ShapeFlags shapeFlags, HazardObj hObj)
-        {
-            var h = viewer.Simulator.HazzardManager.AddHazzardIntoGame(hObj.itemId, hObj.FileName);
-            if (h == null) return null;
-            return new HazzardShape(viewer, viewer.Simulator.BasePath + @"\Global\Shapes\" + h.HazFile.Tr_HazardFile.FileName + "\0" + viewer.Simulator.BasePath + @"\Global\Textures", position, shapeFlags, hObj, h);
-
-        }
-
-        public HazzardShape(Viewer viewer, string path, WorldPosition position, ShapeFlags shapeFlags, HazardObj hObj, Hazzard h)
-            : base(viewer, path, position, shapeFlags)
-        {
-            HazardObj = hObj;
-            Hazzard = h;
-            AnimationFrames = SharedShape.Animations[0].FrameCount;
-        }
-
-        public override void Unload()
-        {
-            Viewer.Simulator.HazzardManager.RemoveHazzardFromGame(HazardObj.itemId);
-            base.Unload();
-        }
-
-        public override void PrepareFrame(RenderFrame frame, ElapsedTime elapsedTime)
-        {
-            if (Hazzard == null) return;
-            Vector2 CurrentRange;
-            AnimationKey += elapsedTime.ClockSeconds * 24f;
-            DelayHazAnimation += elapsedTime.ClockSeconds;
-            switch (Hazzard.state)
-            {
-                case Hazzard.State.Idle1:
-                    CurrentRange = Hazzard.HazFile.Tr_HazardFile.Idle_Key; break;
-                case Hazzard.State.Idle2:
-                    CurrentRange = Hazzard.HazFile.Tr_HazardFile.Idle_Key2; break;
-                case Hazzard.State.LookLeft:
-                    CurrentRange = Hazzard.HazFile.Tr_HazardFile.Surprise_Key_Left; break;
-                case Hazzard.State.LookRight:
-                    CurrentRange = Hazzard.HazFile.Tr_HazardFile.Surprise_Key_Right; break;
-                case Hazzard.State.Scared:
-                default:
-                    CurrentRange = Hazzard.HazFile.Tr_HazardFile.Success_Scarper_Key;
-                    if (Moved < Hazzard.HazFile.Tr_HazardFile.Distance)
-                    {
-                        var m = Hazzard.HazFile.Tr_HazardFile.Speed * elapsedTime.ClockSeconds;
-                        Moved += m;
-                        this.HazardObj.Position.Move(this.HazardObj.QDirection, m);
-                        Location.Location = new Vector3(this.HazardObj.Position.X, this.HazardObj.Position.Y, this.HazardObj.Position.Z);
-                    }
-                    else { Moved = 0; Hazzard.state = Hazzard.State.Idle1; }
-                    break;
-            }
-
-            if (Hazzard.state == Hazzard.State.Idle1 || Hazzard.state == Hazzard.State.Idle2)
-            {
-                if (DelayHazAnimation > 5f)
-                {
-                    if (AnimationKey < CurrentRange.X)
-                    {
-                        AnimationKey = CurrentRange.X;
-                        DelayHazAnimation = 0;
-                    }
-
-                    if (AnimationKey > CurrentRange.Y)
-                    {
-                        AnimationKey = CurrentRange.X;
-                        DelayHazAnimation = 0;
-                    }
-                }
-            }
-
-            if (Hazzard.state == Hazzard.State.LookLeft || Hazzard.state == Hazzard.State.LookRight)
-            {
-                if (AnimationKey < CurrentRange.X) AnimationKey = CurrentRange.X;
-                if (AnimationKey > CurrentRange.Y) AnimationKey = CurrentRange.Y;
-            }
-
-            if (Hazzard.state == Hazzard.State.Scared)
-            {
-                if (AnimationKey < CurrentRange.X) AnimationKey = CurrentRange.X;
-
-                if (AnimationKey > CurrentRange.Y) AnimationKey = CurrentRange.X;
-            }
-
-            for (var i = 0; i < SharedShape.Matrices.Length; ++i)
-                AnimateMatrix(i, AnimationKey);
-
-            //var pos = this.HazardObj.Position;
-
-            SharedShape.PrepareFrame(frame, Location, XNAMatrices, Flags);
-        }
-    }
-
-    public class FuelPickupItemShape : PoseableShape
-    {
-        readonly PickupObj FuelPickupItemObj;
-        readonly FuelPickupItem FuelPickupItem;
-        readonly SoundSource Sound;
-        readonly float FrameRate;
-
-        readonly int AnimationFrames;
-        protected float AnimationKey;
-
-
-        public FuelPickupItemShape(Viewer viewer, string path, WorldPosition position, ShapeFlags shapeFlags, PickupObj fuelpickupitemObj)
-            : base(viewer, path, position, shapeFlags)
-        {
-            FuelPickupItemObj = fuelpickupitemObj;
-
-
-            if (viewer.Simulator.TRK.Tr_RouteFile.DefaultDieselTowerSMS != null && FuelPickupItemObj.PickupType == 7) // Testing for Diesel PickupType
-            {
-                var soundPath = viewer.Simulator.RoutePath + @"\\sound\\" + viewer.Simulator.TRK.Tr_RouteFile.DefaultDieselTowerSMS;
-                try
-                {
-                    Sound = new SoundSource(viewer, position.WorldLocation, Events.Source.MSTSFuelTower, soundPath);
-                    viewer.SoundProcess.AddSoundSources(this, new List<SoundSourceBase>() { Sound });
-                }
-                catch
-                {
-                    soundPath = viewer.Simulator.BasePath + @"\\sound\\" + viewer.Simulator.TRK.Tr_RouteFile.DefaultDieselTowerSMS;
-                    try
-                    {
-                        Sound = new SoundSource(viewer, position.WorldLocation, Events.Source.MSTSFuelTower, soundPath);
-                        viewer.SoundProcess.AddSoundSources(this, new List<SoundSourceBase>() { Sound });
-                    }
-                    catch (Exception error)
-                    {
-                        Trace.WriteLine(new FileLoadException(soundPath, error));
-                    }
-                }
-            }
-            if (viewer.Simulator.TRK.Tr_RouteFile.DefaultWaterTowerSMS != null && FuelPickupItemObj.PickupType == 5) // Testing for Water PickupType
-            {
-                var soundPath = viewer.Simulator.RoutePath + @"\\sound\\" + viewer.Simulator.TRK.Tr_RouteFile.DefaultWaterTowerSMS;
-                try
-                {
-                    Sound = new SoundSource(viewer, position.WorldLocation, Events.Source.MSTSFuelTower, soundPath);
-                    viewer.SoundProcess.AddSoundSources(this, new List<SoundSourceBase>() { Sound });
-                }
-                catch
-                {
-                    soundPath = viewer.Simulator.BasePath + @"\\sound\\" + viewer.Simulator.TRK.Tr_RouteFile.DefaultWaterTowerSMS;
-                    try
-                    {
-                        Sound = new SoundSource(viewer, position.WorldLocation, Events.Source.MSTSFuelTower, soundPath);
-                        viewer.SoundProcess.AddSoundSources(this, new List<SoundSourceBase>() { Sound });
-                    }
-                    catch (Exception error)
-                    {
-                        Trace.WriteLine(new FileLoadException(soundPath, error));
-                    }
-                }
-            }
-            if (viewer.Simulator.TRK.Tr_RouteFile.DefaultCoalTowerSMS != null && (FuelPickupItemObj.PickupType == 6 || FuelPickupItemObj.PickupType == 2))
-            {
-                var soundPath = viewer.Simulator.RoutePath + @"\\sound\\" + viewer.Simulator.TRK.Tr_RouteFile.DefaultCoalTowerSMS;
-                try
-                {
-                    Sound = new SoundSource(viewer, position.WorldLocation, Events.Source.MSTSFuelTower, soundPath);
-                    viewer.SoundProcess.AddSoundSources(this, new List<SoundSourceBase>() { Sound });
-                }
-                catch
-                {
-                    soundPath = viewer.Simulator.BasePath + @"\\sound\\" + viewer.Simulator.TRK.Tr_RouteFile.DefaultCoalTowerSMS;
-                    try
-                    {
-                        Sound = new SoundSource(viewer, position.WorldLocation, Events.Source.MSTSFuelTower, soundPath);
-                        viewer.SoundProcess.AddSoundSources(this, new List<SoundSourceBase>() { Sound });
-                    }
-                    catch (Exception error)
-                    {
-                        Trace.WriteLine(new FileLoadException(soundPath, error));
-                    }
-                }
-            }
-            FuelPickupItem = viewer.Simulator.FuelManager.CreateFuelStation(position, from tid in FuelPickupItemObj.TrItemIDList where tid.db == 0 select tid.dbID);
-            AnimationFrames = 1;
-            FrameRate = 1;
-            if (SharedShape.Animations != null && SharedShape.Animations.Count > 0 && SharedShape.Animations[0].anim_nodes != null && SharedShape.Animations[0].anim_nodes.Count > 0)
-            {
-                FrameRate = SharedShape.Animations[0].FrameCount / FuelPickupItemObj.PickupAnimData.AnimationSpeed;
-                foreach (var anim_node in SharedShape.Animations[0].anim_nodes)
-                    if (anim_node.Name == "ANIMATED_PARTS")
-                    {
-                        AnimationFrames = SharedShape.Animations[0].FrameCount;
-                        break;
-                    }
-            }
-        }
-
-        public override void Unload()
-        {
-            if (Sound != null)
-            {
-                Viewer.SoundProcess.RemoveSoundSources(this);
-                Sound.Dispose();
-            }
-            base.Unload();
-        }
-
-        public override void PrepareFrame(RenderFrame frame, ElapsedTime elapsedTime)
-        {
-
-            // 0 can be used as a setting for instant animation.
-            if (FuelPickupItem.ReFill() && FuelPickupItemObj.UID == MSTSWagon.RefillProcess.ActivePickupObjectUID)
-            {
-                if (AnimationKey == 0 && Sound != null) Sound.HandleEvent(Event.FuelTowerDown);
-                if (FuelPickupItemObj.PickupAnimData.AnimationSpeed == 0) AnimationKey = 1.0f;
-                else if (AnimationKey < AnimationFrames)
-                    AnimationKey += elapsedTime.ClockSeconds * FrameRate;
-            }
-
-            if (!FuelPickupItem.ReFill() && AnimationKey > 0)
-            {
-                if (AnimationKey == AnimationFrames && Sound != null)
-                {
-                    Sound.HandleEvent(Event.FuelTowerTransferEnd);
-                    Sound.HandleEvent(Event.FuelTowerUp);
-                }
-                AnimationKey -= elapsedTime.ClockSeconds * FrameRate;
-            }
-
-            if (AnimationKey < 0)
-            {
-                AnimationKey = 0;
-            }
-            if (AnimationKey > AnimationFrames)
-            {
-                AnimationKey = AnimationFrames;
-                if (Sound != null) Sound.HandleEvent(Event.FuelTowerTransferStart);
-            }
-
-            for (var i = 0; i < SharedShape.Matrices.Length; ++i)
-                AnimateMatrix(i, AnimationKey);
-
-            SharedShape.PrepareFrame(frame, Location, XNAMatrices, Flags);
-        }
-    } // End Class FuelPickupItemShape
-
-    */
-
-    public class RoadCarShape : AnimatedShape
-    {
-        public RoadCarShape(Viewer viewer, string path)
-            : base(viewer, path, new WorldPosition(), ShapeFlags.ShadowCaster)
-        {
-        }
-    }
-
-    /*
-
-    public class TurntableShape : PoseableShape
-    {
-        protected float AnimationKey;  // advances with time
-        protected Turntable Turntable; // linked turntable data
-        readonly SoundSource Sound;
-        bool Rotating = false;
-        protected int IAnimationMatrix = -1; // index of animation matrix
-
-        /// <summary>
-        /// Construct and initialize the class
-        /// </summary>
-        public TurntableShape(Viewer viewer, string path, WorldPosition initialPosition, ShapeFlags flags, Turntable turntable, double startingY)
-            : base(viewer, path, initialPosition, flags)
-        {
-            Turntable = turntable;
-            Turntable.StartingY = (float)startingY;
-            Turntable.TurntableFrameRate = SharedShape.Animations[0].FrameRate;
-            AnimationKey = (Turntable.YAngle / (float)Math.PI * 1800.0f + 3600) % 3600.0f;
-            for (var imatrix = 0; imatrix < SharedShape.Matrices.Length; ++imatrix)
-            {
-                if (SharedShape.MatrixNames[imatrix].ToLower() == turntable.Animations[0].ToLower())
-                {
-                    IAnimationMatrix = imatrix;
-                    break;
-                }
-            }
-            if (viewer.Simulator.TRK.Tr_RouteFile.DefaultTurntableSMS != null)
-            {
-                var soundPath = viewer.Simulator.RoutePath + @"\\sound\\" + viewer.Simulator.TRK.Tr_RouteFile.DefaultTurntableSMS;
-                try
-                {
-                    Sound = new SoundSource(viewer, initialPosition.WorldLocation, Events.Source.ORTSTurntable, soundPath);
-                    viewer.SoundProcess.AddSoundSources(this, new List<SoundSourceBase>() { Sound });
-                }
-                catch
-                {
-                    soundPath = viewer.Simulator.BasePath + @"\\sound\\" + viewer.Simulator.TRK.Tr_RouteFile.DefaultTurntableSMS;
-                    try
-                    {
-                        Sound = new SoundSource(viewer, initialPosition.WorldLocation, Events.Source.ORTSTurntable, soundPath);
-                        viewer.SoundProcess.AddSoundSources(this, new List<SoundSourceBase>() { Sound });
-                    }
-                    catch (Exception error)
-                    {
-                        Trace.WriteLine(new FileLoadException(soundPath, error));
-                    }
-                }
-            }
-            for (var matrix = 0; matrix < SharedShape.Matrices.Length; ++matrix)
-                AnimateMatrix(matrix, AnimationKey);
-
-            var absAnimationMatrix = XNAMatrices[IAnimationMatrix];
-            Matrix.Multiply(ref absAnimationMatrix, ref Location.XNAMatrix, out absAnimationMatrix);
-            Turntable.ReInitTrainPositions(absAnimationMatrix);
-        }
-
-        public override void PrepareFrame(RenderFrame frame, ElapsedTime elapsedTime)
-        {
-            float nextKey;
-            var animation = SharedShape.Animations[0];
-            if (Turntable.GoToTarget || Turntable.GoToAutoTarget)
-            {
-                nextKey = Turntable.TargetY / (2 * (float)Math.PI) * animation.FrameCount;
-            }
-            else
-            {
-                float moveFrames;
-                if (Turntable.Counterclockwise)
-                    moveFrames = animation.FrameRate * elapsedTime.ClockSeconds;
-                else if (Turntable.Clockwise)
-                    moveFrames = -animation.FrameRate * elapsedTime.ClockSeconds;
-                else
-                    moveFrames = 0;
-                nextKey = AnimationKey + moveFrames;
-            }
-            AnimationKey = nextKey % animation.FrameCount;
-            if (AnimationKey < 0)
-                AnimationKey += animation.FrameCount;
-            Turntable.YAngle = MathHelper.WrapAngle(nextKey / animation.FrameCount * 2 * (float)Math.PI);
-
-            if ((Turntable.Clockwise || Turntable.Counterclockwise || Turntable.AutoClockwise || Turntable.AutoCounterclockwise) && !Rotating)
-            {
-                Rotating = true;
-                if (Sound != null) Sound.HandleEvent(Turntable.TrainsOnMovingTable.Count == 1 &&
-                    Turntable.TrainsOnMovingTable[0].FrontOnBoard && Turntable.TrainsOnMovingTable[0].BackOnBoard ? Event.MovingTableMovingLoaded : Event.MovingTableMovingEmpty);
-            }
-            else if ((!Turntable.Clockwise && !Turntable.Counterclockwise && !Turntable.AutoClockwise && !Turntable.AutoCounterclockwise && Rotating))
-            {
-                Rotating = false;
-                if (Sound != null) Sound.HandleEvent(Event.MovingTableStopped);
-            }
-
-            // Update the pose for each matrix
-            for (var matrix = 0; matrix < SharedShape.Matrices.Length; ++matrix)
-                AnimateMatrix(matrix, AnimationKey);
-
-            var absAnimationMatrix = XNAMatrices[IAnimationMatrix];
-            Matrix.Multiply(ref absAnimationMatrix, ref Location.XNAMatrix, out absAnimationMatrix);
-            Turntable.PerformUpdateActions(absAnimationMatrix);
-            SharedShape.PrepareFrame(frame, Location, XNAMatrices, Flags);
-        }
-    }
-
-    public class TransfertableShape : PoseableShape
-    {
-        protected float AnimationKey;  // advances with time
-        protected Transfertable Transfertable; // linked turntable data
-        readonly SoundSource Sound;
-        bool Translating = false;
-        protected int IAnimationMatrix = -1; // index of animation matrix
-
-        /// <summary>
-        /// Construct and initialize the class
-        /// </summary>
-        public TransfertableShape(Viewer viewer, string path, WorldPosition initialPosition, ShapeFlags flags, Transfertable transfertable)
-            : base(viewer, path, initialPosition, flags)
-        {
-            Transfertable = transfertable;
-            AnimationKey = (Transfertable.OffsetPos - Transfertable.CenterOffsetComponent) / Transfertable.Span * SharedShape.Animations[0].FrameCount;
-            for (var imatrix = 0; imatrix < SharedShape.Matrices.Length; ++imatrix)
-            {
-                if (SharedShape.MatrixNames[imatrix].ToLower() == transfertable.Animations[0].ToLower())
-                {
-                    IAnimationMatrix = imatrix;
-                    break;
-                }
-            }
-            if (viewer.Simulator.TRK.Tr_RouteFile.DefaultTurntableSMS != null)
-            {
-                var soundPath = viewer.Simulator.RoutePath + @"\\sound\\" + viewer.Simulator.TRK.Tr_RouteFile.DefaultTurntableSMS;
-                try
-                {
-                    Sound = new SoundSource(viewer, initialPosition.WorldLocation, Events.Source.ORTSTurntable, soundPath);
-                    viewer.SoundProcess.AddSoundSources(this, new List<SoundSourceBase>() { Sound });
-                }
-                catch
-                {
-                    soundPath = viewer.Simulator.BasePath + @"\\sound\\" + viewer.Simulator.TRK.Tr_RouteFile.DefaultTurntableSMS;
-                    try
-                    {
-                        Sound = new SoundSource(viewer, initialPosition.WorldLocation, Events.Source.ORTSTurntable, soundPath);
-                        viewer.SoundProcess.AddSoundSources(this, new List<SoundSourceBase>() { Sound });
-                    }
-                    catch (Exception error)
-                    {
-                        Trace.WriteLine(new FileLoadException(soundPath, error));
-                    }
-                }
-            }
-            for (var matrix = 0; matrix < SharedShape.Matrices.Length; ++matrix)
-                AnimateMatrix(matrix, AnimationKey);
-
-            var absAnimationMatrix = XNAMatrices[IAnimationMatrix];
-            Matrix.Multiply(ref absAnimationMatrix, ref Location.XNAMatrix, out absAnimationMatrix);
-            Transfertable.ReInitTrainPositions(absAnimationMatrix);
-        }
-
-        public override void PrepareFrame(RenderFrame frame, ElapsedTime elapsedTime)
-        {
-            if (Transfertable.GoToTarget)
-            {
-                AnimationKey = (Transfertable.TargetOffset - Transfertable.CenterOffsetComponent) / Transfertable.Span * SharedShape.Animations[0].FrameCount;
-            }
-
-            else if (Transfertable.Forward)
-            {
-                AnimationKey += SharedShape.Animations[0].FrameRate * elapsedTime.ClockSeconds;
-            }
-            else if (Transfertable.Reverse)
-            {
-                AnimationKey -= SharedShape.Animations[0].FrameRate * elapsedTime.ClockSeconds;
-            }
-            if (AnimationKey > SharedShape.Animations[0].FrameCount) AnimationKey = SharedShape.Animations[0].FrameCount;
-            if (AnimationKey < 0) AnimationKey = 0;
-
-            Transfertable.OffsetPos = AnimationKey / SharedShape.Animations[0].FrameCount * Transfertable.Span + Transfertable.CenterOffsetComponent;
-
-            if ((Transfertable.Forward || Transfertable.Reverse) && !Translating)
-            {
-                Translating = true;
-                if (Sound != null) Sound.HandleEvent(Transfertable.TrainsOnMovingTable.Count == 1 &&
-                    Transfertable.TrainsOnMovingTable[0].FrontOnBoard && Transfertable.TrainsOnMovingTable[0].BackOnBoard ? Event.MovingTableMovingLoaded : Event.MovingTableMovingEmpty);
-            }
-            else if ((!Transfertable.Forward && !Transfertable.Reverse && Translating))
-            {
-                Translating = false;
-                if (Sound != null) Sound.HandleEvent(Event.MovingTableStopped);
-            }
-
-            // Update the pose for each matrix
-            for (var matrix = 0; matrix < SharedShape.Matrices.Length; ++matrix)
-                AnimateMatrix(matrix, AnimationKey);
-
-            var absAnimationMatrix = XNAMatrices[IAnimationMatrix];
-            Matrix.Multiply(ref absAnimationMatrix, ref Location.XNAMatrix, out absAnimationMatrix);
-            Transfertable.PerformUpdateActions(absAnimationMatrix, Location);
-            SharedShape.PrepareFrame(frame, Location, XNAMatrices, Flags);
-        }
-    }
-
-    */
-
     public class ShapePrimitive : RenderPrimitive
     {
         public Material Material { get; protected set; }
-        public int[] Hierarchy { get; protected set; } // the hierarchy from the sub_object
-        public int HierarchyIndex { get; protected set; } // index into the hiearchy array which provides pose for this primitive
+        public int[] Hierarchy { get; protected set; } // jerarquía de sub-objetos
+        public int HierarchyIndex { get; protected set; } // Índice en el array de jerarquía que provee la posición para esta primitiva
 
         protected internal VertexBuffer VertexBuffer;
         protected VertexDeclaration VertexDeclaration;
@@ -1381,7 +615,7 @@ namespace Tourmaline.Viewer3D
         {
             if (PrimitiveCount > 0)
             {
-                // TODO consider sorting by Vertex set so we can reduce the number of SetSources required.
+                // TODO considerar ordenar por conjunto de vértices para reducir el número de SetSources requeridas.
                 graphicsDevice.SetVertexBuffers(VertexBufferBindings);
                 graphicsDevice.Indices = IndexBuffer;
                 graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, baseVertex: 0, startIndex: 0, primitiveCount: PrimitiveCount);
@@ -1395,15 +629,16 @@ namespace Tourmaline.Viewer3D
         }
     }
 
-    /// <summary>
-    /// A <c>ShapePrimitive</c> that permits manipulation of vertex and index buffers to change geometry efficiently.
-    /// It permits also change of material
+    /// Una <c>ShapePrimitive</c> que permite la manipulación de los buffers de vértices e índices para
+    /// cambiar la geometría eficientemente.
+    /// También permite cambiar el material.
     /// </summary>
     public class MutableShapePrimitive : ShapePrimitive
     {
         /// <remarks>
-        /// Buffers cannot be expanded, so take care to properly set <paramref name="maxVertices"/> and <paramref name="maxIndices"/>,
-        /// which define the maximum sizes of the vertex and index buffers, respectively.
+        /// No se pueden hacer más grandes los buffers, de forma que hay que tener cuidado 
+        /// para asignar el valor de <paramref name="maxVertices"/> y <paramref name="maxIndices"/>,
+        /// que definen los tamaños máximos de los buffers de vértices e índices respectivamente.
         /// </remarks>
         public MutableShapePrimitive(Material material, int maxVertices, int maxIndices, int[] hierarchy, int hierarchyIndex)
             : base(material: material,
@@ -1450,8 +685,8 @@ namespace Tourmaline.Viewer3D
     public class ShapePrimitiveInstances : RenderPrimitive
     {
         public Material Material { get; protected set; }
-        public int[] Hierarchy { get; protected set; } // the hierarchy from the sub_object
-        public int HierarchyIndex { get; protected set; } // index into the hiearchy array which provides pose for this primitive
+        public int[] Hierarchy { get; protected set; } // jerarquía del sub-objeto
+        public int HierarchyIndex { get; protected set; } // índice en el array de la jerarquía que proporciona la forma para esta primitiva
         public int SubObjectIndex { get; protected set; }
 
         protected VertexBuffer VertexBuffer;
@@ -1539,9 +774,9 @@ namespace Tourmaline.Viewer3D
     {
         static List<string> ShapeWarnings = new List<string>();
 
-        // This data is common to all instances of the shape
+        // Esta información es común a todas las instancias de la forma
         public List<string> MatrixNames = new List<string>();
-        public Matrix[] Matrices = new Matrix[0];  // the original natural pose for this shape - shared by all instances
+        public Matrix[] Matrices = new Matrix[0];  // la forma natural y original para esta shape - compartida por todas sus instancias
         public animations Animations;
         public LodControl[] LodControls;
         public bool HasNightSubObj;
@@ -1550,13 +785,12 @@ namespace Tourmaline.Viewer3D
         public string SoundFileName = "";
         public float BellAnimationFPS = 8;
 
-
         readonly Viewer Viewer;
         public readonly string FilePath;
         public readonly string ReferencePath;
 
         /// <summary>
-        /// Create an empty shape used as a sub when the shape won't load
+        /// Crea una shape vacía que se usa cuando no ha podido cargar la buena
         /// </summary>
         /// <param name="viewer"></param>
         public SharedShape(Viewer viewer)
@@ -1567,10 +801,10 @@ namespace Tourmaline.Viewer3D
         }
 
         /// <summary>
-        /// MSTS shape from shape file
+        /// Shape MSTS desde un archivo
         /// </summary>
         /// <param name="viewer"></param>
-        /// <param name="filePath">Path to shape's S file</param>
+        /// <param name="filePath">Ruta del archivo S de la shape</param>
         public SharedShape(Viewer viewer, string filePath)
         {
             Viewer = viewer;
@@ -1585,13 +819,14 @@ namespace Tourmaline.Viewer3D
         }
 
         /// <summary>
-        /// Only one copy of the model is loaded regardless of how many copies are placed in the scene.
+        /// Solo se carga una copia del modelo independientemente de cuantas copias aparezcan en la escena.
         /// </summary>
         void LoadContent()
         {
             Trace.Write("S");
             var filePath = FilePath;
-            // commented lines allow reading the animation block from an additional file in an Openrails subfolder
+            // las líneas comentadas permiten permiten leer un bloqe de animación desde un archivo adicional
+            // en un subdirectorio Openrails
             //           string dir = Path.GetDirectoryName(filePath);
             //            string file = Path.GetFileName(filePath);
             //            string orFilePath = dir + @"\openrails\" + file;
@@ -1601,7 +836,6 @@ namespace Tourmaline.Viewer3D
             //            {
             //                sFile.ReadAnimationBlock(orFilePath);
             //            }
-
 
             var textureFlags = Helpers.TextureFlags.None;
             if (File.Exists(FilePath + "d"))
@@ -1649,14 +883,14 @@ namespace Tourmaline.Viewer3D
                 throw new InvalidDataException("Shape file missing lod_control section");
             else if (LodControls[0].DistanceLevels.Length > 0 && LodControls[0].DistanceLevels[0].SubObjects.Length > 0)
             {
-                // Zero the position offset of the root matrix for compatibility with MSTS
+                // Pone a cero el offset de posición de la matriz raíz para compatibilidad con MSTS
                 if (LodControls[0].DistanceLevels[0].SubObjects[0].ShapePrimitives.Length > 0 && LodControls[0].DistanceLevels[0].SubObjects[0].ShapePrimitives[0].Hierarchy[0] == -1)
                 {
                     Matrices[0].M41 = 0;
                     Matrices[0].M42 = 0;
                     Matrices[0].M43 = 0;
                 }
-                // Look for root subobject, it is not necessarily the first (see ProTrain signal)
+                // Busca el sub-objeto raíz. No es necesariamente el primero. Hay excepciones.
                 for (int soIndex = 0; soIndex <= LodControls[0].DistanceLevels[0].SubObjects.Length - 1; soIndex++)
                 {
                     sub_object subObject = sFile.shape.lod_controls[0].distance_levels[0].sub_objects[soIndex];
@@ -2199,8 +1433,9 @@ namespace Tourmaline.Viewer3D
         public readonly string ItemName;
 
         /// <summary>
-        /// Construct and initialize the class.
-        /// This constructor is for the labels of track items in TDB and W Files such as sidings and platforms.
+        /// Construye e inicia la clase.
+        /// Este constructor es para las etiquetas de los elementos de vía en los archivos TDB y W como
+        /// andenes y vías muertas.
         /// </summary>
         public TrItemLabel(Viewer viewer, WorldPosition position, TrObject trObj)
         {

@@ -461,21 +461,21 @@ namespace Tourmaline.Simulation.RollingStocks
             }
 
             // If trailing loco resistance constant has not been  defined in WAG/ENG file then assign default value based upon orig Davis values
-            if (TrailLocoResistanceFactor == 0)
-            {
-                if (WagonType == WagonTypes.Engine)
-                {
-                    TrailLocoResistanceFactor = 0.2083f;  // engine drag value
-                }
-                else if (WagonType == WagonTypes.Tender)
-                {
-                    TrailLocoResistanceFactor = 1.0f;  // assume that tenders have been set with a value of 0.0005 as per freight wagons
-                }
-                else  //Standard default if not declared anywhere else
-                {
-                    TrailLocoResistanceFactor = 1.0f;
-                }
-            }
+            //if (TrailLocoResistanceFactor == 0)
+            //{
+            //    if (WagonType == WagonTypes.Engine)
+            //    {
+            //        TrailLocoResistanceFactor = 0.2083f;  // engine drag value
+            //    }
+            //    else if (WagonType == WagonTypes.Tender)
+            //    {
+            //        TrailLocoResistanceFactor = 1.0f;  // assume that tenders have been set with a value of 0.0005 as per freight wagons
+            //    }
+            //    else  //Standard default if not declared anywhere else
+            //    {
+            //        TrailLocoResistanceFactor = 1.0f;
+            //    }
+            //}
 
             // Initialise car body lengths. Assume overhang is 2.0m each end, and bogie centres are the car length minus this value
 
@@ -507,7 +507,7 @@ namespace Tourmaline.Simulation.RollingStocks
             }
 
             // Ensure Drive Axles is set to a default if no OR value added to WAG file
-            if (WagonNumAxles == 0 && WagonType != WagonTypes.Engine)
+            if (WagonNumAxles == 0)// && WagonType != WagonTypes.Engine)
             {
                 if (MSTSWagonNumWheels != 0 && MSTSWagonNumWheels < 6)
                 {
@@ -532,29 +532,29 @@ namespace Tourmaline.Simulation.RollingStocks
             }
 
             // If Drag constant not defined in WAG/ENG file then assign default value based upon orig Davis values
-            if (DavisDragConstant == 0)
-            {
-                if (WagonType == WagonTypes.Engine)
-                {
-                    DavisDragConstant = 0.0024f;
-                }
-                else if (WagonType == WagonTypes.Freight)
-                {
-                    DavisDragConstant = 0.0005f;
-                }
-                else if (WagonType == WagonTypes.Passenger)
-                {
-                    DavisDragConstant = 0.00034f;
-                }
-                else if (WagonType == WagonTypes.Tender)
-                {
-                    DavisDragConstant = 0.0005f;
-                }
-                else  //Standard default if not declared anywhere else
-                {
-                    DavisDragConstant = 0.0005f;
-                }
-            }
+            //if (DavisDragConstant == 0)
+            //{
+            //    if (WagonType == WagonTypes.Engine)
+            //    {
+            //        DavisDragConstant = 0.0024f;
+            //    }
+            //    else if (WagonType == WagonTypes.Freight)
+            //    {
+            //        DavisDragConstant = 0.0005f;
+            //    }
+            //    else if (WagonType == WagonTypes.Passenger)
+            //    {
+            //        DavisDragConstant = 0.00034f;
+            //    }
+            //    else if (WagonType == WagonTypes.Tender)
+            //    {
+            //        DavisDragConstant = 0.0005f;
+            //    }
+            //    else  //Standard default if not declared anywhere else
+            //    {
+            //        DavisDragConstant = 0.0005f;
+            //    }
+            //}
 
             // If wagon frontal area not user defined, assign a default value based upon the wagon dimensions
 
@@ -597,7 +597,7 @@ namespace Tourmaline.Simulation.RollingStocks
                     var wagonType = stf.ReadString();
                     try
                     {
-                        WagonType = (WagonTypes)Enum.Parse(typeof(WagonTypes), wagonType.Replace("Carriage", "Passenger"));
+                        //WagonType = (WagonTypes)Enum.Parse(typeof(WagonTypes), wagonType.Replace("Carriage", "Passenger"));
                     }
                     catch
                     {
@@ -1040,7 +1040,7 @@ namespace Tourmaline.Simulation.RollingStocks
         {
             MainShapeFileName = copy.MainShapeFileName;
             HasPassengerCapacity = copy.HasPassengerCapacity;
-            WagonType = copy.WagonType;
+            //WagonType = copy.WagonType;
             //WagonSpecialType = copy.WagonSpecialType;
             FreightShapeFileName = copy.FreightShapeFileName;
             FreightAnimMaxLevelM = copy.FreightAnimMaxLevelM;

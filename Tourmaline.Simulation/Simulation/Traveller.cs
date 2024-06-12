@@ -12,6 +12,8 @@ namespace Tourmaline.Simulation
     /// <summary>
     /// A traveller that represents a specific location and direction on a track node databse. Think of it like a virtual truck or bogie that can travel along the track or a virtual car that can travel along the road.
     /// </summary>
+   
+    /*
     public class Traveller
     {
         public enum TravellerDirection : byte
@@ -129,8 +131,6 @@ namespace Tourmaline.Simulation
             TSectionDat = tSectionDat;
             TrackNodes = trackNodes;
         }
-
-
 
 
         /// <summary>
@@ -861,4 +861,5 @@ namespace Tourmaline.Simulation
             Distance = distance;
         }
     }
+    */
 }

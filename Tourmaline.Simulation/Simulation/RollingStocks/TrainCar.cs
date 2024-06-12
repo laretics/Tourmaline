@@ -115,15 +115,15 @@ namespace Tourmaline.Simulation.RollingStocks
         protected Vector3 InitialCentreOfGravityM = new Vector3(0, 1.8f, 0); // get centre of gravity - read in MSTSWagon
         protected Vector3 CentreOfGravityM = new Vector3(0, 1.8f, 0); // get centre of gravity after adjusted for freight animation
 
-        public enum WagonTypes
-        {
-            Unknown,
-            Engine,
-            Tender,
-            Passenger,
-            Freight,
-        }
-        public WagonTypes WagonType;
+        //public enum WagonTypes
+        //{
+        //    Unknown,
+        //    Engine,
+        //    Tender,
+        //    Passenger,
+        //    Freight,
+        //}
+        //public WagonTypes WagonType;
 
 
         public virtual void Initialize()
@@ -159,24 +159,6 @@ namespace Tourmaline.Simulation.RollingStocks
             WagFilePath = wagFile;
             RealWagFilePath = wagFile;
         }
-
-        /*
-        // Game save
-        public virtual void Save(BinaryWriter outf)
-        {
-            outf.Write(Flipped);
-            outf.Write(UiD);
-            outf.Write(CarID);
-        }
-
-        // Game restore
-        public virtual void Restore(BinaryReader inf)
-        {
-            Flipped = inf.ReadBoolean();
-            UiD = inf.ReadInt32();
-            CarID = inf.ReadString();
-        }
-        */
 
         //================================================================================================//
         /// <summary>
@@ -477,7 +459,109 @@ namespace Tourmaline.Simulation.RollingStocks
                 Console.WriteLine("  part:  matrix {1,5:F0}  offset {0,10:F4}  weight {2,5:F0}", p.OffsetM, p.iMatrix, p.SumWgt);
 #endif
         } // end SetUpWheelsArticulation()
+        public void ComputePosition()
+        {
+            //position = new WorldPosition(rhs);
+            Vector3 rhs = position.Location;
+            for (var j = 0; j < Parts.Count; j++)
+                Parts[j].InitLineFit();
+            if (Flipped)
+            {
+                var o = -CarLengthM / 2 - CentreOfGravityM.Z;
+                for (var k = 0; k < WheelAxles.Count; k++)
+                {
+                    var d = WheelAxles[k].OffsetM - o;
+                    o = WheelAxles[k].OffsetM;
+                    var x = rhs.X;// + 2048 * (traveler.TileX - tileX);
+                    var y = rhs.Y;
+                    var z = rhs.Z;// + 2048 * (traveler.TileZ - tileZ);
+                    WheelAxles[k].Part.AddWheelSetLocation(1, o, x, y, z, 0);
+                }
+                o = CarLengthM / 2 - CentreOfGravityM.Z - o;
+            }
+            else
+            {
+                var o = CarLengthM / 2 - CentreOfGravityM.Z;
+                for (var k = WheelAxles.Count - 1; k >= 0; k--)
+                {
+                    var d = o - WheelAxles[k].OffsetM;
+                    o = WheelAxles[k].OffsetM;
+                    var x = rhs.X;// + 2048 * (traveler.TileX - tileX);
+                    var y = rhs.Y;
+                    var z = rhs.Z;// + 2048 * (traveler.TileZ - tileZ);
+                    WheelAxles[k].Part.AddWheelSetLocation(1, o, x, y, z, 0);
+                }
+                o = CarLengthM / 2 + CentreOfGravityM.Z + o;
+            }
+            TrainCarPart p0 = Parts[0];
+            for (int i = 1; i < Parts.Count; i++)
+            {
+                TrainCarPart p = Parts[i];
+                p.FindCenterLine();
+                if (p.SumWgt > 1.5)
+                    p0.AddPartLocation(1, p);
+            }
+            p0.FindCenterLine();
+            Vector3 fwd = new Vector3(p0.B[0], p0.B[1], -p0.B[2]);
+            // Check if null vector - The Length() is fine also, but may be more time consuming - By GeorgeS
+            if (fwd.X != 0 && fwd.Y != 0 && fwd.Z != 0)
+                fwd.Normalize();
+            Vector3 side = Vector3.Cross(Vector3.Up, fwd);
+            // Check if null vector - The Length() is fine also, but may be more time consuming - By GeorgeS
+            if (side.X != 0 && side.Y != 0 && side.Z != 0)
+                side.Normalize();
+            Vector3 up = Vector3.Cross(fwd, side);
+            Matrix m = Matrix.Identity;
+            m.M11 = side.X;
+            m.M12 = side.Y;
+            m.M13 = side.Z;
+            m.M21 = up.X;
+            m.M22 = up.Y;
+            m.M23 = up.Z;
+            m.M31 = fwd.X;
+            m.M32 = fwd.Y;
+            m.M33 = fwd.Z;
+            m.M41 = p0.A[0];
+            m.M42 = p0.A[1] + 0.275f;
+            m.M43 = -p0.A[2];
 
+            // calculate truck angles
+            for (int i = 1; i < Parts.Count; i++)
+            {
+                TrainCarPart p = Parts[i];
+                if (p.SumWgt < .5)
+                    continue;
+                if (p.SumWgt < 1.5)
+                {   // single axle pony trunk
+                    float d = p.OffsetM - p.SumOffset / p.SumWgt;
+                    if (-.2 < d && d < .2)
+                        continue;
+                    p.AddWheelSetLocation(1, p.OffsetM, p0.A[0] + p.OffsetM * p0.B[0], p0.A[1] + p.OffsetM * p0.B[1], p0.A[2] + p.OffsetM * p0.B[2], 0);
+                    p.FindCenterLine();
+                }
+                Vector3 fwd1 = new Vector3(p.B[0], p.B[1], -p.B[2]);
+                if (fwd1.X == 0 && fwd1.Y == 0 && fwd1.Z == 0)
+                {
+                    p.Cos = 1;
+                }
+                else
+                {
+                    fwd1.Normalize();
+                    p.Cos = Vector3.Dot(fwd, fwd1);
+                }
+
+                if (p.Cos >= .99999f)
+                    p.Sin = 0;
+                else
+                {
+                    p.Sin = (float)Math.Sqrt(1 - p.Cos * p.Cos);
+                    if (fwd.X * fwd1.Z < fwd.Z * fwd1.X)
+                        p.Sin = -p.Sin;
+                }
+            }
+        }
+
+    /*
         public void ComputePosition(Traveller traveler, bool backToFront, float elapsedTimeS, float distance, float speed)
         {
             for (var j = 0; j < Parts.Count; j++)
@@ -589,26 +673,19 @@ namespace Tourmaline.Simulation.RollingStocks
                 }
             }
         }
-
+    */
         #region Traveller-based updates
         public float CurrentCurveRadius;
 
-        internal void UpdatedTraveler(Traveller traveler, float elapsedTimeS, float distanceM, float speedMpS)
-        {
-            // We need to avoid introducing any unbounded effects, so cap the elapsed time to 0.25 seconds (4FPS).
-            if (elapsedTimeS > 0.25f)
-                return;
-
-            CurrentCurveRadius = traveler.GetCurveRadius();
-        }
-        #endregion
-
-
-        //public static WorldLocation TileLocation(UiD uid)
+        //internal void UpdatedTraveler(Traveller traveler, float elapsedTimeS, float distanceM, float speedMpS)
         //{
-        //    return new WorldLocation(uid.TileX, uid.TileZ, uid.X, uid.Y, uid.Z);
-        //}
+        //    // We need to avoid introducing any unbounded effects, so cap the elapsed time to 0.25 seconds (4FPS).
+        //    if (elapsedTimeS > 0.25f)
+        //        return;
 
+        //    CurrentCurveRadius = traveler.GetCurveRadius();
+        //}
+        #endregion
     }
 
     public class WheelAxle : IComparer<WheelAxle>
@@ -658,7 +735,7 @@ namespace Tourmaline.Simulation.RollingStocks
             for (int i = 0; i < 4; i++)
                 SumX[i] = SumXOffset[i] = 0;
         }
-        public void AddWheelSetLocation(float w, float o, float x, float y, float z, float t, Traveller traveler)
+        public void AddWheelSetLocation(float w, float o, float x, float y, float z, float t)//, Traveller traveler)
         {
             SumWgt += w;
             SumOffset += w * o;

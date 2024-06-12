@@ -26,7 +26,7 @@ namespace Tourmaline.Viewer3D
             var input = new EffectContent()
             {              
                 //Es increíble. Monogame carga el contenido desde el nombre de archivo de identidades e ignora la propiedad EffectCode, así que no hay que
-                //molestasse cargando el archivo nosotros mismos.
+                //molestarse cargando el archivo nosotros mismos.
                 Identity = new ContentIdentity(effectFileName),
             };
             var context = new ProcessorContext();

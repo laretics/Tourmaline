@@ -17,6 +17,8 @@ namespace Tourmaline.Viewer3D.Processes
     [CallOnThread("Render")]
     public class Game: Microsoft.Xna.Framework.Game
     {
+        public static Game Instance { get; set; }
+
         /// Ajustes de usuario
         private string mvarContentPath = "C:\\Tourmaline";
         private string mvarContentPath2 = "A:\\Tourmaline\\Tourmaline";
@@ -61,6 +63,7 @@ namespace Tourmaline.Viewer3D.Processes
             LoaderProcess = new LoaderProcess(this);
             //WebServerProcess = new WebServerProcess(this);
             States = new Stack<GameState>();
+            Instance = this;
         }
 
         private void locateContentPath()

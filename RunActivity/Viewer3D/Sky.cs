@@ -491,7 +491,7 @@ namespace Tourmaline.Viewer3D
             //if (Viewer.Settings.DistantMountains) SharedMaterialManager.FogCoeff *= (3 * (5 - Viewer.Settings.DistantMountainsFogValue) + 0.5f);
 
             //if (Viewer.World.Sky.latitude > 0) // TODO: Use a dirty flag to determine if it is necessary to set the texture again
-            //    SkyShader.StarMapTexture = StarTextureN;
+                SkyShader.StarMapTexture = StarTextureN;
             //else
             //    SkyShader.StarMapTexture = StarTextureS;
 

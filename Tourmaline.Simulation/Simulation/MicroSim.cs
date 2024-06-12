@@ -118,6 +118,7 @@ namespace Tourmaline.Simulation
                     Trace.WriteLine(new FileLoadException(wagonFilePath, error));
                 }
             }
+            salida.locateWagons();
             return salida;
         }
 

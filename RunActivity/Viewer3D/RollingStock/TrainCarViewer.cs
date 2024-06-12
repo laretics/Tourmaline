@@ -115,7 +115,6 @@ namespace Tourmaline.Viewer3D.RollingStock
                             bogie2Axles++;
                         if (TrainCarShape.SharedShape.MatrixNames[i].Equals("WHEELS23") && tpmatrix == bogieMatrix2)
                             bogie2Axles++;
-
                     }
                 }
             }

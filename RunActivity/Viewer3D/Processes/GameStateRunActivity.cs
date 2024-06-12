@@ -118,29 +118,33 @@ namespace Tourmaline.Viewer3D.Processes
 
             Action doAction = () =>
             {
-                // Do the action specified or write out some help.
-                switch (action)
-                {
-                    case "start":
-                    case "debug":
-                    case "develop":
-                        //InitLogging(settings, args);
-                        InitLoading(args);
-                        Start( cabinType, data);
-                        break;
-                    case "test":
-                        //InitLogging(settings, args, true);
-                        InitLoading(args);
-                        Test( data);
-                        break;
+                InitLoading(args);
+                Test(data);
 
-                    default:
-                        MessageBox.Show("No ha podido iniciar " + Application.ProductName + " debudo a un fallo de configuración.\n\n"
-                            +"Para depurar este componente inicie la rutina con los parámetros adecuados.\n\n"
-                            +Application.ProductName+" "+VersionInfo.VersionOrBuild);
-                        Game.Exit();
-                        break;
-                }
+
+                //// Do the action specified or write out some help.
+                //switch (action)
+                //{
+                //    case "start":
+                //    case "debug":
+                //    case "develop":
+                //        //InitLogging(settings, args);
+                //        InitLoading(args);
+                //        Start( cabinType, data);
+                //        break;
+                //    case "test":
+                //        //InitLogging(settings, args, true);
+                //        InitLoading(args);
+                //        Test( data);
+                //        break;
+
+                //    default:
+                //        MessageBox.Show("No ha podido iniciar " + Application.ProductName + " debudo a un fallo de configuración.\n\n"
+                //            +"Para depurar este componente inicie la rutina con los parámetros adecuados.\n\n"
+                //            +Application.ProductName+" "+VersionInfo.VersionOrBuild);
+                //        Game.Exit();
+                //        break;
+                //}
             };
             if (Debugger.IsAttached) //Separa el flujo del código durante la depuración para que el IDE se detenga en el problema y no ante el código que lanza el mensaje.
             {
@@ -186,9 +190,9 @@ namespace Tourmaline.Viewer3D.Processes
                                 error.Message,
                                 String.Join("\n", data.Select(d => "\u2022 " + d).ToArray())),
                                 Application.ProductName + " " + VersionInfo.VersionOrBuild, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        else if (error is Traveller.MissingTrackNodeException)
-                            MessageBox.Show(String.Format("Tourmaline ha detectado una sección de vía que no está en tsection.dat y no puede continuar.\n\n" +
-                                "Lo más probable es que no tenga XTracks o YTracks en esta ruta."));
+                        //else if (error is Traveller.MissingTrackNodeException)
+                        //    MessageBox.Show(String.Format("Tourmaline ha detectado una sección de vía que no está en tsection.dat y no puede continuar.\n\n" +
+                        //        "Lo más probable es que no tenga XTracks o YTracks en esta ruta."));
                         else if (error is FileNotFoundException)
                         {
                             MessageBox.Show(String.Format(

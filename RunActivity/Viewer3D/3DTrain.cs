@@ -120,7 +120,7 @@ namespace Tourmaline.Viewer3D
         internal TrainCarViewer loadCar(TrainCar car)
         {
             Trace.Write("C");
-            TrainCarViewer carViewer = car is MSTSWagon ? new WagonViewer(viewer, car as MSTSWagon,new WorldPosition()) : null;
+            TrainCarViewer carViewer = car is MSTSWagon ? new WagonViewer(viewer, car as MSTSWagon,car.position) : null;
             return carViewer;
         }
     }
