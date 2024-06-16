@@ -11,6 +11,8 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using Tourmaline.Maps;
+using ACadSharp;
 
 namespace Tourmaline.Viewer3D.Processes
 {
@@ -18,7 +20,7 @@ namespace Tourmaline.Viewer3D.Processes
     public class Game: Microsoft.Xna.Framework.Game
     {
         public static Game Instance { get; set; }
-
+       
         /// Ajustes de usuario
         private string mvarContentPath = "C:\\Tourmaline";
         private string mvarContentPath2 = "A:\\Tourmaline\\Tourmaline";
@@ -37,6 +39,8 @@ namespace Tourmaline.Viewer3D.Processes
         public string ContentPath { get; private set; }
         /// Carpeta con los recursos del programa principal
         public string ResourcesPath { get; private set; }
+        /// Carpeta con los datos de cartografía
+        public string GeoPath { get; private set; }
         ///Acceso al proceso Watchdog del juego
         public WatchdogProcess WatchdogProcess { get; private set; }
         ///Acceso al proceso de render del juego
@@ -45,6 +49,8 @@ namespace Tourmaline.Viewer3D.Processes
         public UpdaterProcess UpdaterProcess { get; private set; }
         ///Acceso al proceso que carga los componentes
         public LoaderProcess LoaderProcess { get; private set; }
+
+
 
         Stack<GameState> States;
         public GameState State { get => States.Count > 0 ? States.Peek() : null; }
@@ -75,6 +81,7 @@ namespace Tourmaline.Viewer3D.Processes
                 ContentPath = mvarContentPath2;
 
             ResourcesPath = Path.Combine(ContentPath, "Resources");
+            GeoPath = Path.Combine(ContentPath, "Geo");
         }
 
         [ThreadName("Render")]

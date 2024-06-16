@@ -18,6 +18,10 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 using System.Runtime;
+using System.Net.Http.Headers;
+using Tourmaline.Maps;
+using ACadSharp.IO;
+using ACadSharp;
 
 namespace Tourmaline.Viewer3D.Processes
 {
@@ -243,7 +247,7 @@ namespace Tourmaline.Viewer3D.Processes
             InitSimulator(args, "", acttype);
 
             MicroSim.Start(Game.LoaderProcess.CancellationToken);
-            Viewer = new Viewer(MicroSim, Game);
+            Viewer = new Viewer(MicroSim, Game);            
 
             //Game.ReplaceState(new GameStateViewer3D(Viewer));
 
@@ -260,16 +264,18 @@ namespace Tourmaline.Viewer3D.Processes
             var exitGameState = new GameStateViewer3DTest(args);
             try
             {
-                InitSimulator( args, "Test");
+                InitSimulator(args, "Test");
                 MicroSim.Start(Game.LoaderProcess.CancellationToken);
                 Viewer = new Viewer(MicroSim, Game);
+                //Viewer.World.Map.mapFileName = "T3-1";
+
                 Game.ReplaceState(exitGameState);
                 //Game.PushState(new GameStateViewer3D(Viewer));
                 Game.ReplaceState(new GameStateSFM3D(Viewer));
                 exitGameState.LoadTime = (DateTime.Now.Subtract(startTime)).TotalMilliseconds;
                 exitGameState.Passed = true;
             }
-            catch   (Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
                 Game.ReplaceState(exitGameState);
@@ -574,9 +580,11 @@ namespace Tourmaline.Viewer3D.Processes
             //{
             //    // for resume and replay : set timetable file and selected train info                
             //    MicroSim.ResourcesPath = String.Copy(args[0]);
-            //}
+            //}            
             MicroSim.SetExplore("Velaro4");
         }
+
+
 
         private bool HasExtension(string path, string ext) => Path.GetExtension(path).Equals(ext, StringComparison.OrdinalIgnoreCase);
 

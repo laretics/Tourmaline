@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using ACadSharp;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,17 +15,22 @@ namespace Tourmaline.Viewer3D
     {
         readonly Viewer Viewer;
         public readonly TrainDrawer Trains;
+        public readonly MapDrawer Map;
         private bool mvarFirstLoad = true;
         private bool mvarPerformanceTuner = false; //Ajuste dinámico de FPS
         private readonly int performanceInitialLODBias;
         private readonly int performanceInitialViewingDistance;
         private int lastSecond; //Usado para representar mensajitos
 
+
+
         [CallOnThread("Render")]
-        public World(Viewer viewer)
+        public World(Viewer viewer, string mapFileName)
         {
-            this.Viewer = viewer;
+            this.Viewer = viewer;            
             Trains = new TrainDrawer(viewer);
+            Map = new MapDrawer();
+            Map.mapFileName = System.IO.Path.Combine(viewer.Game.GeoPath, mapFileName + ".dwg");
             performanceInitialLODBias = (int)viewer.Game.LODBias;
             performanceInitialViewingDistance = (int)viewer.Game.ViewingDistance;
         }
@@ -35,6 +41,7 @@ namespace Tourmaline.Viewer3D
             Trains.Load();
             if(mvarFirstLoad)
             {
+                Map.Load();
                 Viewer.ShapeManager.Mark();
                 Viewer.MaterialManager.Mark();
                 Viewer.TextureManager.Mark();
@@ -112,12 +119,14 @@ namespace Tourmaline.Viewer3D
         public void LoadPrep()
         {
             Trains.LoadPrep();
+            Map.LoadPrep();
             mvarPerformanceTuner = Viewer.Game.PerformanceTuner;
         }
 
         [CallOnThread("Updater")]
         public void PrepareFrame(RenderFrame frame,long elapsed)
         {
+            Map.PrepareFrame(frame, elapsed);
             Trains.PepareFrame(frame,elapsed);
         }
 

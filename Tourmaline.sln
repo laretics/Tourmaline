@@ -17,6 +17,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TOURMALINE.IO", "TOURMALINE
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tourmaline.Streaming", "Tourmaline.Streaming\Tourmaline.Streaming.csproj", "{720514E4-0C34-43DB-903C-3BC8FDA5F338}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tourmaline.Maps", "Tourmaline.Maps\Tourmaline.Maps.csproj", "{ABDFEEDC-B555-439C-A102-DD41C339C33F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tourmaline.CSUtilities", "Tourmaline.CSUtilities\Tourmaline.CSUtilities.csproj", "{2B36CF4A-AB73-4589-AB46-B4FB76D3BEEC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +55,14 @@ Global
 		{720514E4-0C34-43DB-903C-3BC8FDA5F338}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{720514E4-0C34-43DB-903C-3BC8FDA5F338}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{720514E4-0C34-43DB-903C-3BC8FDA5F338}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABDFEEDC-B555-439C-A102-DD41C339C33F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABDFEEDC-B555-439C-A102-DD41C339C33F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABDFEEDC-B555-439C-A102-DD41C339C33F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABDFEEDC-B555-439C-A102-DD41C339C33F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B36CF4A-AB73-4589-AB46-B4FB76D3BEEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B36CF4A-AB73-4589-AB46-B4FB76D3BEEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B36CF4A-AB73-4589-AB46-B4FB76D3BEEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B36CF4A-AB73-4589-AB46-B4FB76D3BEEC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
