@@ -207,7 +207,7 @@ namespace Tourmaline.Viewer3D
 
             CCTVWindow.Visible = true;
 
-            World = new World(this);
+            World = new World(this, "T3-1");
             CameraActivate();
 
             // Prepara el mundo para que se pueda cargar en el hilo correcto para depuración o traza.
