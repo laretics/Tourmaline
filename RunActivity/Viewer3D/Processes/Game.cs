@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using Microsoft.Xna.Framework;
 
 namespace Tourmaline.Viewer3D.Processes
 {
@@ -26,7 +27,8 @@ namespace Tourmaline.Viewer3D.Processes
         public float PerformanceTunerTarget = 60; //Objetivo 60FPS
         public bool PerformanceTuner = true; //Forzamos recálculo dinámico de FPS.
         public bool VerticalSync = false; //Sincronía vertical.
-        public float ViewingDistance = 2000.0f; //Distancia máxima de visión
+        public float ViewingDistance = 4000.0f; //Distancia máxima de visión
+        public Vector3 LightDirection = new Vector3(10, 0, 0);
         public float ViewingFOV = 45.0f;
         public bool LODViewingExtention = true; //Extensión de LOD a la máxima distancia de visualización
         public float LODBias = 0; //Nivel de detalle
