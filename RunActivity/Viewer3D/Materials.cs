@@ -394,8 +394,8 @@ namespace Tourmaline.Viewer3D
         {
             //if (Viewer.Settings.UseMSTSEnv == false)
             //{
-            //    Viewer.World.Sky.LoadPrep();
-            //    sunDirection = Viewer.World.Sky.solarDirection;
+                Viewer.World.Sky.LoadPrep();
+                sunDirection = Viewer.World.Sky.solarDirection;
             //}
             //else
             //{
@@ -417,17 +417,18 @@ namespace Tourmaline.Viewer3D
         bool lastLightState;
         double fadeStartTimer;
         float fadeDuration = -1;
-        float clampValue = 1;
-        float distance = 1000;
+        float clampValue = 1;        
+        Vector3 fulaSol = new Vector3(0, -0.2f, -0.2f);
         internal void UpdateShaders()
         {
             //if (Viewer.Settings.UseMSTSEnv == false)
-            //    sunDirection = Viewer.World.Sky.solarDirection;
+            sunDirection = Viewer.World.Sky.solarDirection;
             //else
             //    sunDirection = Viewer.World.MSTSSky.mstsskysolarDirection;
 
-            SceneryShader.SetLightVector_ZFar(sunDirection, (int)Viewer.Game.ViewingDistance);
-            
+            //SceneryShader.SetLightVector_ZFar(sunDirection, (int)Viewer.Game.ViewingDistance);
+            SceneryShader.SetLightVector_ZFar(fulaSol, (int)Viewer.Game.ViewingDistance);
+
 
             /*
             // Headlight illumination

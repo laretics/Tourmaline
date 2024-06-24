@@ -214,6 +214,7 @@ namespace Tourmaline.Viewer3D
             //Esto asegura que a) tenemos los objetos requeridos cargados cuando se inicia la vista 3D.
             // y b) que toda la tarea de carga se ejecuta en un solo hilo, que se puede depurar.
             World.LoadPrep();
+            MaterialManager.LoadPrep();
             Load();
 
             // MUST be after loading is done! (Or we try and load shapes on the main thread.)

@@ -16,6 +16,7 @@ namespace Tourmaline.Viewer3D
         readonly Viewer Viewer;
         public readonly TrainDrawer Trains;
         public readonly MapDrawer Map;
+        public SkyViewer Sky { get; set; }
         private bool mvarFirstLoad = true;
         private bool mvarPerformanceTuner = false; //Ajuste dinámico de FPS
         private readonly int performanceInitialLODBias;
@@ -33,6 +34,7 @@ namespace Tourmaline.Viewer3D
             Map.mapFileName = System.IO.Path.Combine(viewer.Game.GeoPath, mapFileName + ".dwg");
             performanceInitialLODBias = (int)viewer.Game.LODBias;
             performanceInitialViewingDistance = (int)viewer.Game.ViewingDistance;
+            Sky = new SkyViewer(viewer);
         }
 
         [CallOnThread("Loader")]
@@ -126,7 +128,6 @@ namespace Tourmaline.Viewer3D
         [CallOnThread("Updater")]
         public void PrepareFrame(RenderFrame frame,long elapsed)
         {
-            Map.PrepareFrame(frame, elapsed);
             Trains.PepareFrame(frame,elapsed);
         }
 

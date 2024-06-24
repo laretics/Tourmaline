@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using Tourmaline.Common;
 using TOURMALINE.Common;
-using Tourmaline.Viewer3D.Processes;
 using Tourmaline.Viewer3D.Common;
 using Tourmaline.Viewer3D;
 using Tourmaline;
@@ -81,7 +80,7 @@ namespace Tourmaline.Viewer3D
             windDirection = 4.7f; // radians (approx 270 deg, i.e. westerly)
         }
 
-        public void PrepareFrame(RenderFrame frame, TimeSpan elapsedTime)
+        public void PrepareFrame(RenderFrame frame, long elapsedTime)
         {
             // Adjust dome position so the bottom edge is not visible
             Vector3 ViewerXNAPosition = new Vector3(Viewer.Camera.Location.X, Viewer.Camera.Location.Y - 100, -Viewer.Camera.Location.Z);
@@ -92,7 +91,7 @@ namespace Tourmaline.Viewer3D
                 // First time around, initialize the following items:
                 worldLoc = new WorldLatLon();
                 //oldClockTime = Viewer.Simulator.ClockTime % 86400;
-                oldClockTime = DateTime.Now.Ticks % 86400; //TODO: Esto lo he puesto para quitar errores.
+                oldClockTime = (DateTime.Now.Ticks/1000000) % 86400; 
                 while (oldClockTime < 0) oldClockTime += 86400;
                 step1 = step2 = (int)(oldClockTime / 1200);
                 step2 = step2 < maxSteps - 1 ? step2 + 1 : 0; // limit to max. steps in case activity starts near midnight
@@ -194,6 +193,8 @@ namespace Tourmaline.Viewer3D
             // Get the current latitude and longitude coordinates
             //worldLoc.ConvertWTC(Viewer.Camera.TileX, Viewer.Camera.TileZ, Viewer.Camera.Location, ref latitude, ref longitude);
             worldLoc.ConvertWTC(0,0, Viewer.Camera.Location, ref latitude, ref longitude);
+            latitude = 39.61236973692509;
+            longitude = 2.694635899304845;
             //int estacion = (int)Viewer.Simulator.Season;
             int estacion = 1;
             seasonType = estacion;
@@ -202,12 +203,12 @@ namespace Tourmaline.Viewer3D
             date.day = 21;
             date.year = 2017;
             //double ahora = Viewer.Simulator.ClockTime;
-            double ahora = 1;
+            double ahora = DateTime.Now.Ticks/10000000;
             float fractClockTime = (float)ahora / 86400;
             solarDirection = SunMoonPos.SolarAngle(latitude, longitude, fractClockTime, date);
             worldLoc = null;
-            latitude = 0;
-            longitude = 0;
+            //latitude = 0;
+            //longitude = 0;
         }
 
         [CallOnThread("Loader")]
@@ -463,12 +464,12 @@ namespace Tourmaline.Viewer3D
         {
             SkyShader = Viewer.MaterialManager.SkyShader;
             // TODO: This should happen on the loader thread.
-            SkyTexture = SharedTextureManager.Get(Viewer.RenderProcess.GraphicsDevice, System.IO.Path.Combine(Viewer.ContentPath, "SkyDome1.png"));
-            StarTextureN = SharedTextureManager.Get(Viewer.RenderProcess.GraphicsDevice, System.IO.Path.Combine(Viewer.ContentPath, "Starmap_N.png"));
-            StarTextureS = SharedTextureManager.Get(Viewer.RenderProcess.GraphicsDevice, System.IO.Path.Combine(Viewer.ContentPath, "Starmap_S.png"));
-            MoonTexture = SharedTextureManager.Get(Viewer.RenderProcess.GraphicsDevice, System.IO.Path.Combine(Viewer.ContentPath, "MoonMap.png"));
-            MoonMask = SharedTextureManager.Get(Viewer.RenderProcess.GraphicsDevice, System.IO.Path.Combine(Viewer.ContentPath, "MoonMask.png"));
-            CloudTexture = SharedTextureManager.Get(Viewer.RenderProcess.GraphicsDevice, System.IO.Path.Combine(Viewer.ContentPath, "Clouds01.png"));
+            SkyTexture = SharedTextureManager.Get(Viewer.RenderProcess.GraphicsDevice, System.IO.Path.Combine(Viewer.ResourcesPath, "SkyDome1.png"));
+            StarTextureN = SharedTextureManager.Get(Viewer.RenderProcess.GraphicsDevice, System.IO.Path.Combine(Viewer.ResourcesPath, "Starmap_N.png"));
+            StarTextureS = SharedTextureManager.Get(Viewer.RenderProcess.GraphicsDevice, System.IO.Path.Combine(Viewer.ResourcesPath, "Starmap_S.png"));
+            MoonTexture = SharedTextureManager.Get(Viewer.RenderProcess.GraphicsDevice, System.IO.Path.Combine(Viewer.ResourcesPath, "MoonMap.png"));
+            MoonMask = SharedTextureManager.Get(Viewer.RenderProcess.GraphicsDevice, System.IO.Path.Combine(Viewer.ResourcesPath, "MoonMask.png"));
+            CloudTexture = SharedTextureManager.Get(Viewer.RenderProcess.GraphicsDevice, System.IO.Path.Combine(Viewer.ResourcesPath, "Clouds01.png"));
 
             ShaderPassesSky = SkyShader.Techniques["Sky"].Passes.GetEnumerator();
             ShaderPassesMoon = SkyShader.Techniques["Moon"].Passes.GetEnumerator();
