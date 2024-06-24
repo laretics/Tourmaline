@@ -1,0 +1,136 @@
+FGC UT 211 Ver. V.1 FINAL
+-----------------------------------------------------------------
+
+
+Autor: Jordi Alaró
+E-Mail: Jordialaro@hotmail.com
+Diseño 3D, texturas, cabina y sonidos: Jordi Alaró ( 2N3055 )
+Página Web: www.trensim.com
+Fecha: 19/02/2007 2:30:04 PM
+-----------------------------------------------------------------
+
+
+DESCRIPCIÓN
+--------------------------------------------
+
+
+Como objetivo de reforzar el numero de trenes del parque motor de FGC, la compañía encargó la construcción de 10 nuevos 
+trenes de la serie 211 de vía métrica a imagen de la serie 111, de la misma compañía pero de ancho internacional ya en 
+servicio en la linea del Vallès des de 1982 con la única diferencia de que las 211 estarían preparadas para servicios 
+regionales con Wc y  con compartimiento transformable en paquetería. Dichos trenes serían contruidos por Macosa, Alsthom 
+y la MTM en composiciones Mc+ Ri+ Rc, de la 211.01 a la 05 y con el Wc en el Ri, y Mc+Rc, de la 211.06 a la 10 con el Wc 
+en el Rc. Así, a finales de 1987 entra en servicio la primera unidad de dicha serie haciendo cualquier tipo de servicio de
+la linea. A mediados de los 90, se encargan 2 nuevos Ri sin Wc quedando así 7 trenes de 3 coches y 3 de 2. Los defectos 
+técnicos de la serie, sobretodo en la disposición de los motores, la llegada de los nuevos trenes de la serie 213 
+suficientes para cubrir la demanda y el hecho de no estar adaptadas para PMR estan provocando que en los útimos 2 años, las
+211 se estén apartando del servicio. Actualmente la mayoría están apartadas en San Boi y sólo 2 hacen servicios urbanos de
+corta distancia y mucha frecuencia, y no todos los días circulan.
+
+CONTENIDO
+--------------------------------------------
+
+ATENCIÓN: Para que éste Add-On funcione correctamente en su ordenador y no le produzca ningún tipo de error al iniciar el
+MSTS deberà tener instalado el parche MSTS BIN v1.6 o superior, descargable TOTALMENTE gratuito y sin necesidad de registro
+previo en http://mstsbin.uktrainsim.com/eng/eng.html, sección "Downloads". Dicho parche proporcionara al tren apectos mas 
+realistas que se describen más abajo de éste texto.
+
+
+En éste Add-On se incluyen 3 modelos que representan a los 3 tipos de unidades 211 que podemos encontrar actualmente:
+
+- La 211.02, de 3 coches con el Wc en el Ri
+- La 211.06, de 3 coches con el Wc en el Rc
+- La 211.09, de 2 coches con el Wc en el Rc
+
+El pack incluye consists que se instalan automaticamente y presentan las 211 en formaciones simple y doble ( 2+3 ) de éstas
+unidades así como para ser llevadas des del Rc.
+
+Los trenes vienen con las siguientes caracterisitcas y funciones:
+
+- Adaptados al ultimo parche 1.6 MSTS Bin
+- Cabina real 3D tanto nocturna como diurna
+- Posibilidad de cambiar de cabina en el mismo tren mediante la selección de coche piloto con la tecla F9
+- Puertas practicables ( teclas Ctrol + 7 ó 9 del teclado numérico )
+- Espejos Retrovisores Practicables ( teclas Ctrol + 8 del teclado numérico )
+- Vistas interiores con posibilidad de selección mediante la tecla F9
+- Sonidos 100% reales
+- Sonidos para trenes IA en actividades
+- Hombre muerto
+- Simulación aproximada del DIMFAP en cabina
+
+Los sonidos han sido registrados mediante una gravadora cassete-recorder sony TCM-2 en la 211.06 y el ruido del motor en la
+211.04.
+
+A parte, éste Add-on incluye documentación adicional para usuarios normales y avanzados sobre la formación de composiciones,
+modificación de carteles de destino y numeraciones.
+
+AGRADECIMIENTOS 
+
+Muchas personas han participado de forma directa o indirecta en éste proyecto. Sin ellos muchos aspectos de la 211 no 
+serían del todo correctos o su nivel sería más bajo. Un proyecto no lo hace una sola persona...Gracias a todos!
+
+- Edgar Lamela ( Sorcek ) 
+- Aaron Gil ( CRT-220 )
+- Pizias
+- Germán Senz ( gersenz ) 
+- Héctor ( Bcn_Clot_Aragó )
+- Josep Serre
+- Pere Garcia ( peregarcia )
+- A todo el Foro de TrenSim
+
+...y como no, la 211.06 y la 211.04 :D
+
+Éste modelo se lo dedico a:
+
+-La gente MSTSera forofa de la vía métrica electrificada, que ya era hora de tener alguna UT de vía metrica!
+-A los VERDADEROS aficionados al Ferrocarril
+-A los VERDADEROS profesionales del Ferrocarril
+-A los VERDADEROS amigos
+-A mis amigas
+-A la comunidad virtual de trensim, con ellos he aprendido mucho y de bién seguro que sin Trensim, éste proyecto no hubiera
+  sido ni planteado.
+
+Grácias a todos!
+-----------------------------------------------------------------
+
+LICENCIA DE USO:
+
+1 PROHIBIDA LA PUBLICACIÓN DE LA MODIFICACIÓN DE CUALQUIER FICHERO RELACIONADO CON ESTE PRODUCTO SIN TENER PREVIO 
+  CONSENTIMINETO POR ESCRITO DEL AUTOR, salvo que sea por uso totalmente personal. Bajo ningún concepto, se podran publicar
+  capturas o videos de éstas modificaciones personales en lugares publicos como pàginas web, foros y revistas. Dicha 
+  infracción serà considerada como si fuera una publicación de ésta modificación personal haciendo una clara violación de 
+  éste punto.
+
+2 PROHIBIDO EL USO DE TECNOLOGÍAS INVERSAS PARA LA MANIPULACIÓN DE CUALQUIER FICHERO.
+
+3 EL USUARIO SE HACE RESPONSABLE DE CUALQUIER DAÑO QUE PUEDA CAUSAR EL MAL USO DE ESTE PRODUCTO.
+
+4 PUBLICACIÓN DE CAPTURAS Y VIDEOS: La publicación de videos o capturas de éste add on és totalmente LIBRE, salvo en las
+  condiciones que se sitan en el apartado 1. La publicación de capturas y videos queda RESTRINGIDA a los lugares donde no se
+  fomenta la cultura del freeware o no son respetados los derechos de propiedad intelectual o de autor.
+
+5 MODIFICACIÓN DE LA TEXTURA "SERVEIS.ace". Ésta textura, una vez modificada por el usuario, podrá ser distribuida por
+  separado del add-on siempre y cuando tenga MI COSNENTIMIENTO y cumpla las condiciones exigidas en el documento
+  "opciones avanzadas 211" y no se entre en conflicto con el punto numero 1.
+
+
+LICENCIA DE DISTRIBUCIÓN:
+
+1 ESTÁ PROHIBIDA LA DISTRIBUCIÓN DE CUALQUIER FICHERO RELACIONADO CON EL PRODUCTO POR SEPARADO, salvo el que se cita en el
+  punto 5 de la Licencia de Uso.
+
+2 ESTÁ PROHIBIDA LA DISTRIBUCIÓN DE ESTE ADD-ON EN OTRAS PÁGINAS SIN MI CONSENTIMIENTO.
+
+3 ESTÁ PROHIBIDA LA DISTRIBUCIÓN EN REDES DE TIPO PEER2PEER COMO PUEDEN SER KAZAA, EDONKEY, EMULE, ETC.
+
+4 ESTÁ PROHIBIDA LA DISTRIBUCIÓN DE ESTE PRODUCTO EN PÁGINAS QUE DEN PROVILEGIOS A LOS USUARIOS QUE PAGAN UNA CUOTA.
+
+5 ESTÁ PROHIBIDA LA DISTRIBUCIÓN DE ESTE PRODUCTO PUBLICAMENTE BAJO CUALQUIER FORMATO FISICO COM PUENDEN SER cD-ROMS,
+  DVD-ROM, DISQUETES, ETC.
+
+6 ESTÁ PROHIBIDA LA DISTRIBUCIÓN DE ESTE PRODUCTO RECIBIENDO UNA COMPENSACIÓN ECONÓMICA A CAMBIO.
+
+===========================================================================================================================
+
+
+
+
