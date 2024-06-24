@@ -9,6 +9,123 @@ using System.Windows.Forms;
 using Tourmaline.Viewer3D.Popups;
 using TOURMALINE.Common;
 
+
+/*
+    public void ComputePosition(Traveller traveler, bool backToFront, float elapsedTimeS, float distance, float speed)
+    {
+        for (var j = 0; j < Parts.Count; j++)
+            Parts[j].InitLineFit();
+        //var tileX = traveler.TileX;
+        //var tileZ = traveler.TileZ;
+        if (Flipped == backToFront)
+        {
+            var o = -CarLengthM / 2 - CentreOfGravityM.Z;
+            for (var k = 0; k < WheelAxles.Count; k++)
+            {
+                var d = WheelAxles[k].OffsetM - o;
+                o = WheelAxles[k].OffsetM;
+                traveler.Move(d);
+                var x = traveler.X;// + 2048 * (traveler.TileX - tileX);
+                var y = traveler.Y;
+                var z = traveler.Z;// + 2048 * (traveler.TileZ - tileZ);
+                WheelAxles[k].Part.AddWheelSetLocation(1, o, x, y, z, 0, traveler);
+            }
+            o = CarLengthM / 2 - CentreOfGravityM.Z - o;
+            traveler.Move(o);
+        }
+        else
+        {
+            var o = CarLengthM / 2 - CentreOfGravityM.Z;
+            for (var k = WheelAxles.Count - 1; k >= 0; k--)
+            {
+                var d = o - WheelAxles[k].OffsetM;
+                o = WheelAxles[k].OffsetM;
+                traveler.Move(d);
+                var x = traveler.X;// + 2048 * (traveler.TileX - tileX);
+                var y = traveler.Y;
+                var z = traveler.Z;// + 2048 * (traveler.TileZ - tileZ);
+                WheelAxles[k].Part.AddWheelSetLocation(1, o, x, y, z, 0, traveler);
+            }
+            o = CarLengthM / 2 + CentreOfGravityM.Z + o;
+            traveler.Move(o);
+        }
+
+        TrainCarPart p0 = Parts[0];
+        for (int i = 1; i < Parts.Count; i++)
+        {
+            TrainCarPart p = Parts[i];
+            p.FindCenterLine();
+            if (p.SumWgt > 1.5)
+                p0.AddPartLocation(1, p);
+        }
+        p0.FindCenterLine();
+        Vector3 fwd = new Vector3(p0.B[0], p0.B[1], -p0.B[2]);
+        // Check if null vector - The Length() is fine also, but may be more time consuming - By GeorgeS
+        if (fwd.X != 0 && fwd.Y != 0 && fwd.Z != 0)
+            fwd.Normalize();
+        Vector3 side = Vector3.Cross(Vector3.Up, fwd);
+        // Check if null vector - The Length() is fine also, but may be more time consuming - By GeorgeS
+        if (side.X != 0 && side.Y != 0 && side.Z != 0)
+            side.Normalize();
+        Vector3 up = Vector3.Cross(fwd, side);
+        Matrix m = Matrix.Identity;
+        m.M11 = side.X;
+        m.M12 = side.Y;
+        m.M13 = side.Z;
+        m.M21 = up.X;
+        m.M22 = up.Y;
+        m.M23 = up.Z;
+        m.M31 = fwd.X;
+        m.M32 = fwd.Y;
+        m.M33 = fwd.Z;
+        m.M41 = p0.A[0];
+        m.M42 = p0.A[1] + 0.275f;
+        m.M43 = -p0.A[2];
+        //WorldPosition.XNAMatrix = m;
+        //WorldPosition.TileX = tileX;
+        //WorldPosition.TileZ = tileZ;
+
+        UpdatedTraveler(traveler, elapsedTimeS, distance, speed);
+
+        // calculate truck angles
+        for (int i = 1; i < Parts.Count; i++)
+        {
+            TrainCarPart p = Parts[i];
+            if (p.SumWgt < .5)
+                continue;
+            if (p.SumWgt < 1.5)
+            {   // single axle pony trunk
+                float d = p.OffsetM - p.SumOffset / p.SumWgt;
+                if (-.2 < d && d < .2)
+                    continue;
+                p.AddWheelSetLocation(1, p.OffsetM, p0.A[0] + p.OffsetM * p0.B[0], p0.A[1] + p.OffsetM * p0.B[1], p0.A[2] + p.OffsetM * p0.B[2], 0, null);
+                p.FindCenterLine();
+            }
+            Vector3 fwd1 = new Vector3(p.B[0], p.B[1], -p.B[2]);
+            if (fwd1.X == 0 && fwd1.Y == 0 && fwd1.Z == 0)
+            {
+                p.Cos = 1;
+            }
+            else
+            {
+                fwd1.Normalize();
+                p.Cos = Vector3.Dot(fwd, fwd1);
+            }
+
+            if (p.Cos >= .99999f)
+                p.Sin = 0;
+            else
+            {
+                p.Sin = (float)Math.Sqrt(1 - p.Cos * p.Cos);
+                if (fwd.X * fwd1.Z < fwd.Z * fwd1.X)
+                    p.Sin = -p.Sin;
+            }
+        }
+    }
+*/
+
+
+
 namespace Tourmaline.Viewer3D
 {
     public class World

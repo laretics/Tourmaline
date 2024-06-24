@@ -32,8 +32,9 @@ namespace Tourmaline.Simulation.RollingStocks
             foreach (var car in Cars) 
             {
                 car.position = new TOURMALINE.Common.WorldPosition(new Microsoft.Xna.Framework.Vector3(0, 0, x));
-                //car.ComputePosition();
-                x -= car.CarLengthM;
+                car.SetUpWheels();
+                car.ComputePosition();
+                x += car.CarLengthM;
             }
         }
 

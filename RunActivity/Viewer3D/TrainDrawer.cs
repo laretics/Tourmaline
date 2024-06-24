@@ -98,7 +98,7 @@ namespace Tourmaline.Viewer3D
         public void LoadPrep()
         {
             List<TrainCar> colvisibleCars = new List<TrainCar>();
-            float removeDistance = viewer.Game.ViewingDistance * 1.5f;
+            //float removeDistance = viewer.Game.ViewingDistance * 1.5f;
             //visibleCars.Add(viewer.PlayerLocomotive);
             foreach (TrainCar car in viewer.microSim.PlayerTrain.Cars)
             {
