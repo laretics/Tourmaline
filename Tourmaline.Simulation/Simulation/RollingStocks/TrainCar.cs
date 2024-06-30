@@ -55,7 +55,7 @@ namespace Tourmaline.Simulation.RollingStocks
 
     public abstract class TrainCar
     {
-        public readonly MicroSim Simulator;
+        //public readonly MicroSim Simulator;
         public TourmalineTrain Train; //Tren al que está conectado este coche.
         public readonly string WagFilePath;
         public string RealWagFilePath; //we are substituting missing remote cars in MP, so need to remember this
@@ -153,9 +153,9 @@ namespace Tourmaline.Simulation.RollingStocks
 
         public virtual void SignalEvent(Event evt) { }
 
-        public TrainCar(MicroSim simulator, string wagFile)
+        public TrainCar(string wagFile)
         {
-            Simulator = simulator;
+            //Simulator = simulator;
             WagFilePath = wagFile;
             RealWagFilePath = wagFile;
         }

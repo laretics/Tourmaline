@@ -351,8 +351,8 @@ namespace Tourmaline.Simulation.RollingStocks
             public static bool Unload { get; set; }
         }
 
-        public MSTSWagon(MicroSim simulator, string wagFilePath)
-            : base(simulator, wagFilePath)
+        public MSTSWagon(string wagFilePath)
+            : base(wagFilePath)
         {
 
         }
@@ -1340,55 +1340,55 @@ namespace Tourmaline.Simulation.RollingStocks
         public void ToggleDoorsLeft()
         {
             DoorLeftOpen = !DoorLeftOpen;
-            if (Simulator.PlayerLocomotive == this) // second part for remote trains
-            {//inform everyone else in the train
-                foreach (var car in Train.Cars)
-                {
-                    var mstsWagon = car as MSTSWagon;
-                    if (car != this && mstsWagon != null)
-                    {
-                        if (!car.Flipped ^ Flipped)
-                        {
-                            mstsWagon.DoorLeftOpen = DoorLeftOpen;
-                            mstsWagon.SignalEvent(DoorLeftOpen ? Event.DoorOpen : Event.DoorClose); // hook for sound trigger
-                        }
-                        else
-                        {
-                            mstsWagon.DoorRightOpen = DoorLeftOpen;
-                            mstsWagon.SignalEvent(DoorLeftOpen ? Event.DoorOpen : Event.DoorClose); // hook for sound trigger
-                        }
-                    }
-                }
-                if (DoorLeftOpen) SignalEvent(Event.DoorOpen); // hook for sound trigger
-                else SignalEvent(Event.DoorClose);
-            }
+            //if (Simulator.PlayerLocomotive == this) // second part for remote trains
+            //{//inform everyone else in the train
+            //    foreach (var car in Train.Cars)
+            //    {
+            //        var mstsWagon = car as MSTSWagon;
+            //        if (car != this && mstsWagon != null)
+            //        {
+            //            if (!car.Flipped ^ Flipped)
+            //            {
+            //                mstsWagon.DoorLeftOpen = DoorLeftOpen;
+            //                mstsWagon.SignalEvent(DoorLeftOpen ? Event.DoorOpen : Event.DoorClose); // hook for sound trigger
+            //            }
+            //            else
+            //            {
+            //                mstsWagon.DoorRightOpen = DoorLeftOpen;
+            //                mstsWagon.SignalEvent(DoorLeftOpen ? Event.DoorOpen : Event.DoorClose); // hook for sound trigger
+            //            }
+            //        }
+            //    }
+            //    if (DoorLeftOpen) SignalEvent(Event.DoorOpen); // hook for sound trigger
+            //    else SignalEvent(Event.DoorClose);
+            //}
         }
 
         public void ToggleDoorsRight()
         {
             DoorRightOpen = !DoorRightOpen;
-            if (Simulator.PlayerLocomotive == this) // second part for remote trains
-            { //inform everyone else in the train
-                foreach (TrainCar car in Train.Cars)
-                {
-                    var mstsWagon = car as MSTSWagon;
-                    if (car != this && mstsWagon != null)
-                    {
-                        if (!car.Flipped ^ Flipped)
-                        {
-                            mstsWagon.DoorRightOpen = DoorRightOpen;
-                            mstsWagon.SignalEvent(DoorRightOpen ? Event.DoorOpen : Event.DoorClose); // hook for sound trigger
-                        }
-                        else
-                        {
-                            mstsWagon.DoorLeftOpen = DoorRightOpen;
-                            mstsWagon.SignalEvent(DoorRightOpen ? Event.DoorOpen : Event.DoorClose); // hook for sound trigger
-                        }
-                    }
-                }
-                if (DoorRightOpen) SignalEvent(Event.DoorOpen); // hook for sound trigger
-                else SignalEvent(Event.DoorClose);
-            }
+            //if (Simulator.PlayerLocomotive == this) // second part for remote trains
+            //{ //inform everyone else in the train
+            //    foreach (TrainCar car in Train.Cars)
+            //    {
+            //        var mstsWagon = car as MSTSWagon;
+            //        if (car != this && mstsWagon != null)
+            //        {
+            //            if (!car.Flipped ^ Flipped)
+            //            {
+            //                mstsWagon.DoorRightOpen = DoorRightOpen;
+            //                mstsWagon.SignalEvent(DoorRightOpen ? Event.DoorOpen : Event.DoorClose); // hook for sound trigger
+            //            }
+            //            else
+            //            {
+            //                mstsWagon.DoorLeftOpen = DoorRightOpen;
+            //                mstsWagon.SignalEvent(DoorRightOpen ? Event.DoorOpen : Event.DoorClose); // hook for sound trigger
+            //            }
+            //        }
+            //    }
+            //    if (DoorRightOpen) SignalEvent(Event.DoorOpen); // hook for sound trigger
+            //    else SignalEvent(Event.DoorClose);
+            //}
         }
 
         public void ToggleMirrors()

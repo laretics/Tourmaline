@@ -48,7 +48,7 @@ namespace Tourmaline.Simulation
             Log = new CommandLog(this);
         }
 
-        public void Start(CancellationToken cancellation)
+        public void Start()
         {
             gameTime = new Microsoft.Xna.Framework.GameTime();
             gameTime.TotalGameTime = DateTime.Now.TimeOfDay;
@@ -83,7 +83,7 @@ namespace Tourmaline.Simulation
 
         private TourmalineTrain initializePlayerTrain()
         {
-            TourmalineTrain salida = new TourmalineTrain(this);
+            TourmalineTrain salida = new TourmalineTrain();
 
             string consistPath = Path.Combine(contentPath, "Consists", consistFileName + ".con");
 
@@ -103,7 +103,7 @@ namespace Tourmaline.Simulation
 
                 try
                 {
-                    TrainCar car = RollingStock.Load(this, wagonFilePath);                   
+                    TrainCar car = RollingStock.Load(wagonFilePath);                   
                     car.Flipped = coche.Flip;
                     car.UiD = coche.UiD;
                     salida.Cars.Add(car);

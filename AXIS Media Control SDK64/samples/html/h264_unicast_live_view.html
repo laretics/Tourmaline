@@ -1,0 +1,56 @@
+<html>
+<head>
+<title>H.264 Live View</title>
+</head>
+<body>
+
+<div align="center"><h2>H.264 Live View</h2>
+<form name="test">
+  <input id="ip" type="input" size="10" value="0.0.0.0">
+  <input type="button" name="Play" value="Play" onClick="OnPlay(); return false;">
+</form>
+<object id="Player" height="480" width="640" border="1" classid="CLSID:745395C8-D0E1-4227-8586-624CA9A10A8D">
+  AXIS Media Control (SDK) for Internet Explorer is not installed or failed to initialize.
+  <param name="AutoStart" value="0">
+  <param name="UIMode" value="none">
+  <param name="MediaType" value="h264">
+  <param name="VideoRenderer" value="65536"> <!-- Use Enhanced Video Renderer for best performance -->
+  <param name="NetworkTimeout" value="5000"><!-- use this param if you want to change the network timeout -->
+  <param name="MediaUsername" value=""><!-- this param only necessary if restricted access is enabled -->
+  <param name="MediaPassword" value=""><!-- this param only necessary if restricted access is enabled -->
+  <param name="MediaURL" value="axrtpu://myServer/axis-media/media.amp?videocodec=h264"><!-- your media url goes here -->
+</object>
+</div>
+<script language="JavaScript">
+<!--	  
+	document.Player.EnableContextMenu = true;
+	document.Player.StretchToFit = true;
+	document.Player.MaintainAspectRatio = true;
+//-->
+</script>
+
+<script language="JavaScript">
+<!--
+function OnPlay()
+{
+  try
+  {
+	var server = document.getElementById('ip').value;
+	// return values from AMC methods are handled as exceptions in JavaScript
+	document.Player.Stop();
+	document.Player.MediaURL = "axrtsphttp://" + server + "/axis-media/media.amp?videocodec=h264";
+	document.Player.Play();
+  }
+  catch(e){}
+}
+//-->
+</script>
+
+<script language="JavaScript" for="Player" event="OnError(theError, theMsg)">
+<!--
+  alert(theError + ' ' + theMsg);
+//-->
+</script>
+
+</body>
+</html>

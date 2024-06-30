@@ -246,7 +246,7 @@ namespace Tourmaline.Viewer3D.Processes
         {
             InitSimulator(args, "", acttype);
 
-            MicroSim.Start(Game.LoaderProcess.CancellationToken);
+            MicroSim.Start();
             Viewer = new Viewer(MicroSim, Game);            
 
             //Game.ReplaceState(new GameStateViewer3D(Viewer));
@@ -265,7 +265,8 @@ namespace Tourmaline.Viewer3D.Processes
             try
             {
                 InitSimulator(args, "Test");
-                MicroSim.Start(Game.LoaderProcess.CancellationToken);
+                MicroSim.Start();
+                
                 Viewer = new Viewer(MicroSim, Game);
                 //Viewer.World.Map.mapFileName = "T3-1";
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-//using TOURMALINE.Settings;
 using TOURMALINE.Common;
 using Tourmaline.Common;
 using System.Configuration;
@@ -14,6 +13,7 @@ using System.IO;
 using Tourmaline.Maps;
 using ACadSharp;
 using Microsoft.Xna.Framework;
+using Tourmaline.Viewer3D.TvForms;
 
 namespace Tourmaline.Viewer3D.Processes
 {
@@ -51,8 +51,11 @@ namespace Tourmaline.Viewer3D.Processes
         public UpdaterProcess UpdaterProcess { get; private set; }
         ///Acceso al proceso que carga los componentes
         public LoaderProcess LoaderProcess { get; private set; }
+        /// Acceso al proceso que recibe las transmisiones CCTV
+        public VideoStreamingProcess VideoStreamingProcess { get; private set; }
 
-
+        //Formulario de Windows para colocar la imagen de una cámara
+        TvForm mvarTvForm;
 
         Stack<GameState> States;
         public GameState State { get => States.Count > 0 ? States.Peek() : null; }
@@ -63,13 +66,14 @@ namespace Tourmaline.Viewer3D.Processes
         /// <param name="settings">The <see cref="UserSettings"/> for the game to use.</param>
         //public Game(UserSettings settings)
         public Game()
-        {
+        {        
+            
             locateContentPath();            
             Exiting += new System.EventHandler<System.EventArgs>(Game_Exiting);
             WatchdogProcess = new WatchdogProcess(this);
             RenderProcess = new RenderProcess(this);
             UpdaterProcess = new UpdaterProcess(this);
-            LoaderProcess = new LoaderProcess(this);
+            //LoaderProcess = new LoaderProcess(this);
             //WebServerProcess = new WebServerProcess(this);
             States = new Stack<GameState>();
             Instance = this;
@@ -90,9 +94,10 @@ namespace Tourmaline.Viewer3D.Processes
         protected override void BeginRun()
         {
             // En este punto, GraphicsDevice está iniciada y configurada.
-            LoaderProcess.Start();
+            //LoaderProcess.Start();
             UpdaterProcess.Start();
             RenderProcess.Start();
+            
             WatchdogProcess.Start();
             base.BeginRun();
         }
@@ -139,7 +144,7 @@ namespace Tourmaline.Viewer3D.Processes
             WatchdogProcess.Stop();
             RenderProcess.Stop();
             UpdaterProcess.Stop();
-            LoaderProcess.Stop();
+            //LoaderProcess.Stop();
         }
 
         [ThreadName("Render")]
@@ -176,25 +181,6 @@ namespace Tourmaline.Viewer3D.Processes
             state.Game = this;
             States.Push(state);
             Trace.TraceInformation("Game.ReplaceState({0})  {1}", state.GetType().Name, String.Join(" | ", States.Select(s => s.GetType().Name).ToArray()));
-        }
-
-        /// <summary>
-        /// Actualiza la llamada al hilo <see cref="Thread.CurrentUICulture"/> para cumplir con los ajustes del <see cref="Game"/>
-        /// </summary>
-        [CallOnThread("Render")]
-        [CallOnThread("Updater")]
-        [CallOnThread("Loader")]
-        [CallOnThread("Watchdog")]
-        public void SetThreadLanguage()
-        {
-            //if (Settings.Language.Length > 0)
-            //{
-            //    try
-            //    {
-            //        CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo(Settings.Language);
-            //    }
-            //    catch (CultureNotFoundException) { }
-            //}
         }
 
         /// <summary>
