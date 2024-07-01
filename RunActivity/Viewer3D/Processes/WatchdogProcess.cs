@@ -85,7 +85,6 @@ namespace Tourmaline.Viewer3D.Processes
         void WatchdogThread()
         {
             Profiler.SetThread();
-            Game.SetThreadLanguage();
 
             while (true)
             {

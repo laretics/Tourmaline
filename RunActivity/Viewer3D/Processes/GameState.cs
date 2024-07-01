@@ -38,8 +38,9 @@ namespace Tourmaline.Viewer3D.Processes
         internal virtual void Update(RenderFrame frame, DateTime now)
         {
             // Por defecto, cada actualización intenta iniciar una carga.
-            if (Game.LoaderProcess.Finished)
-                Game.LoaderProcess.StartLoad();
+            //if (Game.LoaderProcess.Finished)
+            //    Game.LoaderProcess.StartLoad();
+            Game.State.Load();
         }
 
         /// <summary>

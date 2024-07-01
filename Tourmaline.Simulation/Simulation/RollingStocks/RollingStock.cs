@@ -80,12 +80,12 @@ namespace Tourmaline.Simulation.RollingStocks
 
     public class RollingStock
     {
-        public static TrainCar Load(MicroSim sim, string wagFilePath, bool initialize = true)
+        public static TrainCar Load(string wagFilePath, bool initialize = true)
         {
             GenericWAGFile wagFile = SharedGenericWAGFileManager.Get(wagFilePath);
             TrainCar coche;
             //Coche de viajeros
-            coche = new MSTSWagon(sim, wagFilePath);
+            coche = new MSTSWagon(wagFilePath);
             MSTSWagon vagon = coche as MSTSWagon;
             if(null!=coche)
             {

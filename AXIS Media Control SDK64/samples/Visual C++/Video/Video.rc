@@ -1,0 +1,233 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\Video.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\Video.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_VIDEO_DIALOG DIALOGEX 0, 0, 397, 220
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CLIPCHILDREN | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "Video sample"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_ipTEXT,281,10,112,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_USER,338,27,55,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT_PASS,338,44,55,14,ES_PASSWORD | ES_AUTOHSCROLL
+    COMBOBOX        IDC_COMBO_TYPE,281,62,112,200,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Play Live",IDC_PLAYLIVE,281,92,54,14
+    PUSHBUTTON      "Play File",IDC_PLAYFILE,338,92,55,14
+    PUSHBUTTON      "Stop",IDC_STOPPLAY,281,111,112,14
+    PUSHBUTTON      "Record",IDC_StartRecord,281,144,54,14
+    PUSHBUTTON      "Stop",IDC_StopRecord,338,144,55,14
+    EDITTEXT        IDC_FILE,281,165,90,15,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "...",IDC_BROWSE,377,165,16,14
+    LTEXT           "Username:",IDC_STATIC,281,27,54,14,SS_CENTERIMAGE
+    LTEXT           "Password:",IDC_STATIC,281,44,54,14,SS_CENTERIMAGE
+    CONTROL         "",IDC_AXISMEDIACONTROL1,
+                    "{745395C8-D0E1-4227-8586-624CA9A10A8D}",WS_TABSTOP,1,2,280,218
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904e4"
+        BEGIN
+            VALUE "FileDescription", "Video MFC Application"
+            VALUE "FileVersion", "1, 0, 0, 1"
+            VALUE "InternalName", "Video"
+            VALUE "LegalCopyright", "Copyright (C) 2005"
+            VALUE "OriginalFilename", "Video.EXE"
+            VALUE "ProductName", "Video Application"
+            VALUE "ProductVersion", "1, 0, 0, 1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_VIDEO_DIALOG DLGINIT
+BEGIN
+    IDC_COMBO_TYPE, 0x403, 5, 0
+0x3268, 0x3436, "\000" 
+    IDC_COMBO_TYPE, 0x403, 5, 0
+0x3268, 0x3536, "\000" 
+    IDC_COMBO_TYPE, 0x403, 6, 0
+0x706d, 0x6765, 0x0034, 
+    IDC_COMBO_TYPE, 0x403, 6, 0
+0x6a6d, 0x6570, 0x0067, 
+    IDC_AXISMEDIACONTROL1, 0x376, 512, 0
+0x0000, 0x0000, 0x0a00, 0x0000, 0x2b69, 0x0000, 0x2496, 0x0000, 0x0008, 
+0x0002, 0x0000, 0x0000, 0x000b, 0x0000, 0x0008, 0x000a, 0x0000, 0x006e, 
+0x006f, 0x006e, 0x0065, 0x0000, 0x000b, 0x0000, 0x0003, 0xffff, 0xffff, 
+0x0008, 0x0002, 0x0000, 0x0000, 0x0008, 0x0002, 0x0000, 0x0000, 0x0003, 
+0x3a98, 0x0000, 0x0008, 0x000a, 0x0000, 0x006e, 0x006f, 0x006e, 0x0065, 
+0x0000, 0x000b, 0x0000, 0x0008, 0x0002, 0x0000, 0x0000, 0x000b, 0x0000, 
+0x000b, 0x0000, 0x000b, 0x0000, 0x0008, 0x0002, 0x0000, 0x0000, 0x0003, 
+0x0000, 0x0000, 0x0008, 0x0002, 0x0000, 0x0000, 0x0008, 0x0002, 0x0000, 
+0x0000, 0x0008, 0x0002, 0x0000, 0x0000, 0x0008, 0x0002, 0x0000, 0x0000, 
+0x0008, 0x0002, 0x0000, 0x0000, 0x0008, 0x0002, 0x0000, 0x0000, 0x0008, 
+0x0002, 0x0000, 0x0000, 0x000b, 0x0000, 0x0003, 0xffff, 0xffff, 0x000b, 
+0x0000, 0x0003, 0x0000, 0x0000, 0x0008, 0x0002, 0x0000, 0x0000, 0x0008, 
+0x0002, 0x0000, 0x0000, 0x0003, 0x0003, 0x0000, 0x000b, 0xffff, 0x0003, 
+0x0000, 0x0000, 0x000b, 0x0000, 0x0003, 0x0000, 0x0000, 0x000b, 0x0000, 
+0x0008, 0x0002, 0x0000, 0x0000, 0x000b, 0x0000, 0x000b, 0x0000, 0x0003, 
+0x0001, 0x0000, 0x0003, 0x0007, 0x0000, 0x0003, 0x0003, 0x0000, 0x0003, 
+0x0000, 0x0000, 0x0003, 0x0000, 0x0000, 0x000b, 0x0000, 0x000b, 0x0000, 
+0x0003, 0x0032, 0x0000, 0x0003, 0x0096, 0x0000, 0x0003, 0x0032, 0x0000, 
+0x0003, 0x0096, 0x0000, 0x0003, 0xffff, 0x00ff, 0x0003, 0x0000, 0x0000, 
+0x0003, 0x0032, 0x0000, 0x0003, 0x0096, 0x0000, 0x000b, 0xffff, 0x0015, 
+0x0000, 0x0000, 0x0000, 0x0000, 0x0015, 0x0000, 0x0000, 0x0000, 0x0000, 
+0x0015, 0xffff, 0xffff, 0xffff, 0x7fff, 0x0003, 0x0096, 0x0000, 0x000b, 
+0xffff, 0x0003, 0xffff, 0xffff, 0x0008, 0x0002, 0x0000, 0x0000, 0x0008, 
+0x0008, 0x0000, 0x0065, 0x006e, 0x0067, 0x0000, 0x0008, 0x0002, 0x0000, 
+0x0000, 0x0003, 0x0000, 0x0000, 0x0003, 0x0000, 0x0000, 0x0008, 0x0002, 
+0x0000, 0x0000, 0x000b, 0x0000, 0x0003, 0x0000, 0x0000, 0x0008, 0x0002, 
+0x0000, 0x0000, 0x000b, 0x0000, 0x0003, 0x0003, 0x0000, 0x0003, 0x0032, 
+0x0000, 0x0003, 0x0096, 0x0000, 0x000b, 0x0000, 0x0005, 0x0000, 0x0000, 
+0x0000, 0x3ff0, 0x000b, 0x0000, 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_VIDEO_DIALOG, DIALOG
+    BEGIN
+        RIGHTMARGIN, 395
+        VERTGUIDE, 338
+        VERTGUIDE, 392
+        VERTGUIDE, 395
+        HORZGUIDE, 10
+        HORZGUIDE, 27
+        HORZGUIDE, 41
+        HORZGUIDE, 44
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif //_WIN32
+#include "res\Video.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

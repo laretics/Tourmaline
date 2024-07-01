@@ -13,14 +13,14 @@ namespace Tourmaline.Simulation.RollingStocks
     {
         public List<TrainCar> Cars = new List<TrainCar>();
         public float Length {  get; set; }
-        private MicroSim mvarSimulator;
+        //private MicroSim mvarSimulator;
         //public Traveller FrontTDBTraveller;
         //public Traveller RearTDBTraveller;
         public float SpeedMpS { get; set; }
 
-        public TourmalineTrain(MicroSim simulator)
+        public TourmalineTrain()// MicroSim simulator)
         {
-            mvarSimulator = simulator;
+            //mvarSimulator = simulator;
 //            FrontTDBTraveller = new Traveller();
 //            RearTDBTraveller = new Traveller();
         }
