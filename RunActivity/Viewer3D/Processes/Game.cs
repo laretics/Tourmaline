@@ -14,6 +14,7 @@ using System.IO;
 using Tourmaline.Maps;
 using ACadSharp;
 using Microsoft.Xna.Framework;
+using TourmalineNetSDK;
 
 namespace Tourmaline.Viewer3D.Processes
 {
@@ -51,6 +52,8 @@ namespace Tourmaline.Viewer3D.Processes
         public UpdaterProcess UpdaterProcess { get; private set; }
         ///Acceso al proceso que carga los componentes
         public LoaderProcess LoaderProcess { get; private set; }
+        /// Acceso al proceso que obtiene las imágenes CCTV
+        public CCTVProcess CCTVProcess { get; private set; }
 
 
 
@@ -71,6 +74,7 @@ namespace Tourmaline.Viewer3D.Processes
             UpdaterProcess = new UpdaterProcess(this);
             LoaderProcess = new LoaderProcess(this);
             //WebServerProcess = new WebServerProcess(this);
+            CCTVProcess = new CCTVProcess(this);
             States = new Stack<GameState>();
             Instance = this;
         }
@@ -89,11 +93,13 @@ namespace Tourmaline.Viewer3D.Processes
         [ThreadName("Render")]
         protected override void BeginRun()
         {
-            // En este punto, GraphicsDevice está iniciada y configurada.
+            // En este punto, GraphicsDevice está iniciada y configurada.            
             LoaderProcess.Start();
             UpdaterProcess.Start();
             RenderProcess.Start();
+            CCTVProcess.Start();
             WatchdogProcess.Start();
+            
             base.BeginRun();
         }
 
@@ -140,6 +146,7 @@ namespace Tourmaline.Viewer3D.Processes
             RenderProcess.Stop();
             UpdaterProcess.Stop();
             LoaderProcess.Stop();
+            CCTVProcess.Stop();
         }
 
         [ThreadName("Render")]

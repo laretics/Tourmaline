@@ -54,6 +54,11 @@ namespace Tourmaline.Viewer3D
             Type tipo = entity.GetType();
             if(typeof(ACadSharp.Entities.Polyline3D)==tipo) 
             { 
+                Polyline3D poli = (Polyline3D)entity;
+                foreach(Vertex3D vertex in poli.Vertices)
+                {
+                    
+                }
             
             }
             else if (typeof(ACadSharp.Entities.LwPolyline) == tipo)
