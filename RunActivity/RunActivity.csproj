@@ -60,6 +60,10 @@
     <Compile Include="UserInput.cs" />
     <Compile Include="Viewer3D\MapDrawer.cs" />
     <Compile Include="Viewer3D\Materials\Materials.cs" />
+    <Compile Include="Viewer3D\Materials\RenderFrame.cs" />
+    <Compile Include="Viewer3D\Materials\Shapes.cs" />
+    <Compile Include="Viewer3D\Materials\_3dAnimatedPart.cs" />
+    <Compile Include="Viewer3D\Materials\_3dTrainDrawer.cs" />
     <Compile Include="Viewer3D\Processes\FirstLoadProcess.cs" />
     <Compile Include="Viewer3D\Processes\VideoStreamingProcess.cs" />
     <Compile Include="Viewer3D\TrainDrawer.cs" />
@@ -92,7 +96,7 @@
     <Compile Include="Viewer3D\Shaders.cs" />
     <Compile Include="Viewer3D\Shapes.cs" />
     <Compile Include="Viewer3D\Sky.cs" />
-    <Compile Include="Viewer3D\TvForms\3dCamera.cs" />
+    <Compile Include="Viewer3D\Materials\3dCamera.cs" />
     <Compile Include="Viewer3D\TvForms\3dTrainControl.cs">
       <SubType>Component</SubType>
     </Compile>

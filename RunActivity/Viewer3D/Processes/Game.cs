@@ -75,7 +75,6 @@ namespace Tourmaline.Viewer3D.Processes
             UpdaterProcess = new UpdaterProcess(this);
             //LoaderProcess = new LoaderProcess(this);
             //WebServerProcess = new WebServerProcess(this);
-            CCTVProcess = new CCTVProcess(this);
             States = new Stack<GameState>();
             Instance = this;
         }

@@ -35,12 +35,9 @@ namespace Tourmaline
         static void Main(string[] args)
         {
             var options = args.Where(a => a.StartsWith("-") || a.StartsWith("/")).Select(a => a.Substring(1));
-
             string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Native");
             path = Path.Combine(path, (Environment.Is64BitProcess) ? "X64" : "X86");
-            NativeMethods.SetDllDirectory(path);
-            Application.EnableVisualStyles();
-
+            NativeMethods.SetDllDirectory(path);           
 
             //Código original
             //var game = new Game();
@@ -50,10 +47,12 @@ namespace Tourmaline
             //Vamos a modificarlo para cargar los recursos nada más comenzar la carga.
             //Microsoft.Xna.Framework.Game game = new Microsoft.Xna.Framework.Game(); //Creamos el objeto del juego.
             //Antes de comenzar el juego llamamos al cargador.
+            Application.EnableVisualStyles();
             FirstLoadProcess cargador = FirstLoadProcess.Instance;
             TourmalineTrain auxTren = cargador.loadTrain("fgc4");
-            mainForm = new TvForm();
+            mainForm = new TvForm();            
             mainForm.Show();
+            mainForm.mvarFondo.Train = auxTren;
 
             Application.Run(mainForm); //Cedemos el control al formulario principal.
         }

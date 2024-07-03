@@ -270,7 +270,7 @@ namespace Tourmaline.Viewer3D.Processes
                 Viewer = new Viewer(MicroSim, Game);
                 //Viewer.World.Map.mapFileName = "T3-1";
 
-                Game.ReplaceState(exitGameState);
+                //Game.ReplaceState(exitGameState);
                 //Game.PushState(new GameStateViewer3D(Viewer));
                 Game.ReplaceState(new GameStateSFM3D(Viewer));
                 exitGameState.LoadTime = (DateTime.Now.Subtract(startTime)).TotalMilliseconds;

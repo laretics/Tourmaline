@@ -29,9 +29,9 @@ namespace Tourmaline.Viewer3D.TvForms
             // CbTest
             // 
             this.CbTest.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.CbTest.Location = new System.Drawing.Point(511, 295);
+            this.CbTest.Location = new System.Drawing.Point(511, 384);
             this.CbTest.Name = "CbTest";
-            this.CbTest.Size = new System.Drawing.Size(183, 91);
+            this.CbTest.Size = new System.Drawing.Size(183, 22);
             this.CbTest.TabIndex = 1;
             this.CbTest.Text = "Prueba";
             this.CbTest.UseVisualStyleBackColor = true;
@@ -40,9 +40,9 @@ namespace Tourmaline.Viewer3D.TvForms
             // 
             this.LbDebug.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.LbDebug.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.LbDebug.Location = new System.Drawing.Point(12, 295);
+            this.LbDebug.Location = new System.Drawing.Point(12, 377);
             this.LbDebug.Name = "LbDebug";
-            this.LbDebug.Size = new System.Drawing.Size(445, 111);
+            this.LbDebug.Size = new System.Drawing.Size(472, 44);
             this.LbDebug.TabIndex = 2;
             // 
             // mvarFondo

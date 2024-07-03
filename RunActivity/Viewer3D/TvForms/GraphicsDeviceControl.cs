@@ -16,7 +16,6 @@ namespace Tourmaline.Viewer3D.TvForms
     using Color = System.Drawing.Color;
     using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
-
     /// <summary>
     /// Control de usuario que usa un GraphicsDevice de XNA Framework para
     /// ser representado en un Windows Form.
@@ -48,8 +47,11 @@ namespace Tourmaline.Viewer3D.TvForms
 
         ServiceContainer services = new ServiceContainer();
 
+        internal _3dTrainViewer mvarViewer; //Visualizador de tren propio de este control.
+
         public GraphicsDeviceControl() : base()
         {
+            mvarViewer = new _3dTrainViewer(this);
         }
 
         /// <summary>

@@ -3,6 +3,7 @@ using System.CodeDom;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework.Input;
+using Tourmaline.Viewer3D.TvForms;
 using TOURMALINE.Common.Input;
 using Game = Tourmaline.Viewer3D.Processes.Game;
 
@@ -21,6 +22,13 @@ namespace Tourmaline.Viewer3D
 
         [DllImport("user32.dll")]
         static extern short GetAsyncKeyState(Keys key);
+
+        public static void UpdateControl(GraphicsDeviceControl control)
+        {
+
+
+
+        }
 
         public static void Update(Game game)
         {
